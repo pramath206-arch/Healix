@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healix — Your Health, Verified</title>
+<style>
+/* ===== RESET & BASE ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-50:#E6F1FB;--blue-100:#B5D4F4;--blue-200:#85B7EB;--blue-400:#378ADD;
+  --blue-600:#185FA5;--blue-800:#0C447C;--blue-900:#042C53;
+  --teal-50:#E1F5EE;--teal-400:#1D9E75;--teal-600:#0F6E56;--teal-800:#085041;
+  --amber-50:#FAEEDA;--amber-400:#EF9F27;--amber-600:#BA7517;--amber-800:#633806;
+  --red-50:#FCEBEB;--red-100:#F7C1C1;--red-400:#E24B4A;--red-600:#A32D2D;--red-800:#791F1F;
+  --green-50:#EAF3DE;--green-400:#639922;--green-600:#3B6D11;--green-800:#27500A;
+  --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-200:#B4B2A9;--gray-400:#888780;
+  --gray-600:#5F5E5A;--gray-800:#444441;
+  --pink-50:#FBEAF0;--pink-600:#993556;--pink-800:#72243E;
+  --bg:#F7FAFF;--surface:#FFFFFF;--border:#D0E4F5;
+  --text:#0C447C;--text-muted:#888780;--text-soft:#5F5E5A;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 1px 4px rgba(24,95,165,.08);
+  --shadow-md:0 4px 16px rgba(24,95,165,.12);
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5}
+button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* ===== APP SHELL ===== */
+#app{display:flex;flex-direction:column;min-height:100vh;max-width:430px;margin:0 auto;background:var(--surface);position:relative;box-shadow:0 0 40px rgba(24,95,165,.1)}
+
+/* ===== TOPBAR ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-size:20px;font-weight:700;color:var(--blue-600);letter-spacing:-0.5px}
+.logo span{color:var(--teal-400)}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.lang-btn{font-size:12px;color:var(--blue-600);background:var(--blue-50);border:1px solid var(--blue-200);border-radius:20px;padding:3px 10px;cursor:pointer}
+.notif-btn{position:relative;background:none;border:none;padding:2px}
+.notif-btn svg{width:22px;height:22px}
+.notif-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;background:var(--red-400);border-radius:50%;border:2px solid var(--surface)}
+.greeting{font-size:12px;color:var(--text-muted);padding:6px 18px 0}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;padding:8px 0 14px;background:var(--surface);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;border-radius:var(--radius-sm);border:none;background:none;color:var(--text-muted);font-size:10px;transition:all .15s}
+.nav-item.active{color:var(--blue-600)}
+.nav-item svg{width:22px;height:22px}
+.nav-item .nav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue-600);margin:0 auto}
+.nav-sos{background:var(--red-400);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin-top:-20px;border:3px solid var(--surface);box-shadow:0 2px 12px rgba(226,75,74,.4)}
+.nav-sos svg{width:22px;height:22px;color:#fff}
+
+/* ===== PAGES ===== */
+.page{display:none;flex:1;overflow-y:auto;padding-bottom:16px}
+.page.active{display:block}
+
+/* ===== HERO ===== */
+.hero{background:linear-gradient(135deg,var(--blue-600) 0%,var(--blue-800) 100%);padding:20px 18px 18px;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-30px;right:-40px;width:150px;height:150px;background:rgba(255,255,255,.05);border-radius:50%}
+.hero-label{font-size:11px;letter-spacing:.08em;opacity:.7;text-transform:uppercase;margin-bottom:4px}
+.hero-title{font-size:22px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.hero-sub{font-size:13px;opacity:.8;margin-bottom:14px}
+.search-box{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--radius-md);padding:10px 14px}
+.search-box input{flex:1;border:none;outline:none;font-size:14px;color:var(--text-soft);background:transparent}
+.search-box svg{width:18px;height:18px;color:var(--blue-400);flex-shrink:0}
+
+/* ===== EMERGENCY STRIP ===== */
+.sos-strip{margin:14px 16px;background:var(--red-600);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.sos-strip-left .sos-title{font-size:13px;font-weight:600;color:#fff}
+.sos-strip-left .sos-sub{font-size:11px;color:#ffb5b5;margin-top:1px}
+.sos-btn{background:#fff;color:var(--red-600);font-size:12px;font-weight:600;padding:7px 14px;border-radius:var(--radius-sm);border:none;transition:transform .1s}
+.sos-btn:active{transform:scale(.96)}
+
+/* ===== SECTION ===== */
+.section{padding:14px 16px}
+.section-title{font-size:11px;font-weight:600;color:var(--blue-600);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.section-title a{font-size:11px;color:var(--blue-400);font-weight:400;text-transform:none;letter-spacing:0}
+
+/* ===== QUICK ACCESS ===== */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.quick-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.quick-card:hover{border-color:var(--blue-400);background:var(--blue-50)}
+.quick-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.quick-icon svg{width:20px;height:20px}
+.quick-label{font-size:11px;font-weight:500;color:var(--text)}
+.quick-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+/* ===== DOCTOR CARD ===== */
+.doctor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.doctor-card:hover{border-color:var(--blue-400)}
+.doc-avatar{width:44px;height:44px;border-radius:50%;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--blue-800);flex-shrink:0;border:2px solid var(--blue-100)}
+.doc-info{flex:1}
+.doc-name{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:5px}
+.verified-badge{width:14px;height:14px;background:var(--blue-600);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.verified-badge svg{width:8px;height:8px;color:#fff}
+.doc-spec{font-size:11px;color:var(--text-muted);margin-top:1px}
+.doc-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.trust-pill{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid}
+.trust-gold{background:var(--amber-50);color:var(--amber-800);border-color:var(--amber-400)}
+.trust-silver{background:var(--gray-50);color:var(--gray-800);border-color:var(--gray-400)}
+.trust-verified{background:var(--blue-50);color:var(--blue-800);border-color:var(--blue-200)}
+.online-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;margin-left:auto;flex-shrink:0}
+.online-label{font-size:10px;color:#16a34a;font-weight:500}
+
+/* ===== REELS ===== */
+.reel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px}
+.reel-thumb{height:160px;display:flex;align-items:center;justify-content:center;position:relative}
+.play-circle{width:44px;height:44px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
+.play-circle:hover{transform:scale(1.1)}
+.play-tri{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:16px solid var(--blue-600);margin-left:3px}
+.reel-duration{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px}
+.reel-body{padding:10px 12px}
+.reel-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.reel-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px}
+.reel-tags{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.reel-stats{display:flex;gap:14px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.reel-stat{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted)}
+.reel-stat svg{width:14px;height:14px}
+
+/* ===== EMERGENCY PAGE ===== */
+.em-status-bar{background:var(--red-600);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.em-status-label{font-size:12px;font-weight:600;color:#fff}
+.em-status-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.map-container{margin:12px 16px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border);height:200px;background:var(--blue-50);position:relative}
+.map-svg{width:100%;height:100%}
+.map-overlay-label{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.9);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--blue-800);font-weight:500}
+.map-zoom{position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:4px}
+.map-zoom button{width:26px;height:26px;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:4px;font-size:14px;color:var(--text);display:flex;align-items:center;justify-content:center}
+.em-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.em-card.ambulance{border-color:var(--amber-400)}
+.em-card-left .em-card-name{font-size:13px;font-weight:600;color:var(--text)}
+.em-card-left .em-card-dist{font-size:11px;color:var(--text-muted);margin-top:2px}
+.em-card-left .em-eta{font-size:11px;color:var(--amber-600);font-weight:500;margin-top:2px}
+.btn-call{background:var(--blue-600);color:#fff;font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:none}
+.btn-dispatch{background:var(--amber-50);color:var(--amber-800);font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--amber-400)}
+.remote-help{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px}
+.remote-help-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px}
+.remote-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.remote-btn{background:var(--blue-50);color:var(--blue-800);font-size:11px;font-weight:500;padding:8px 6px;border-radius:var(--radius-sm);border:1px solid var(--blue-200);text-align:center;cursor:pointer;transition:all .15s}
+.remote-btn:hover{background:var(--blue-100)}
+
+/* ===== CHAT PAGE ===== */
+.chat-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.chat-doc-info{flex:1}
+.chat-doc-name{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.chat-doc-status{font-size:11px;color:#16a34a;margin-top:1px}
+.chat-doc-limit{font-size:10px;color:var(--text-muted);margin-top:1px}
+.free-counter{display:inline-block;background:var(--blue-50);color:var(--blue-800);font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid var(--blue-200)}
+.chat-messages{padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+.bubble-wrap{display:flex;flex-direction:column}
+.bubble-wrap.me{align-items:flex-end}
+.bubble-wrap.them{align-items:flex-start}
+.bubble{padding:10px 13px;border-radius:14px;max-width:82%;font-size:13px;line-height:1.5}
+.bubble.them{background:var(--blue-50);color:var(--blue-800);border-bottom-left-radius:3px}
+.bubble.me{background:var(--blue-600);color:#fff;border-bottom-right-radius:3px}
+.bubble-time{font-size:10px;color:var(--text-muted);margin-top:3px;padding:0 3px}
+.insight-banner{background:var(--amber-50);border:1px solid var(--amber-400);border-radius:var(--radius-sm);padding:8px 10px;margin:4px 0}
+.insight-title{font-size:10px;font-weight:600;color:var(--amber-800);margin-bottom:2px}
+.insight-text{font-size:11px;color:var(--amber-600);line-height:1.4}
+.chat-input-area{padding:10px 16px 14px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end}
+.chat-input-area textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;font-size:13px;color:var(--text-soft);outline:none;max-height:100px;min-height:42px;transition:border .15s}
+.chat-input-area textarea:focus{border-color:var(--blue-400)}
+.send-btn{width:42px;height:42px;background:var(--blue-600);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn svg{width:18px;height:18px;color:#fff}
+.doc-list-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s}
+.doc-list-item:hover{border-color:var(--blue-400)}
+
+/* ===== AI vs DOCTOR ===== */
+.compare-intro{padding:14px 16px;font-size:13px;color:var(--text-soft);background:var(--blue-50);border-bottom:1px solid var(--border);line-height:1.5}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.compare-card{border-radius:var(--radius-md);padding:12px;border:1px solid}
+.compare-card.ai-card{background:var(--amber-50);border-color:var(--amber-400)}
+.compare-card.doc-card{background:var(--blue-50);border-color:var(--blue-200)}
+.compare-card-title{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ai-card .compare-card-title{color:var(--amber-800)}
+.doc-card .compare-card-title{color:var(--blue-800)}
+.compare-item{font-size:11px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.05);line-height:1.4;display:flex;align-items:flex-start;gap:4px}
+.compare-item:last-of-type{border-bottom:none}
+.compare-item.good{color:var(--green-600)}
+.compare-item.bad{color:var(--red-600)}
+.ci-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ci-dot.good{background:var(--green-400)}
+.ci-dot.bad{background:var(--red-400)}
+.accuracy-section{padding:0 16px}
+.acc-row{margin-bottom:10px}
+.acc-label-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.acc-label-row .name{font-weight:500;color:var(--text)}
+.acc-label-row .score{font-weight:600}
+.acc-track{height:8px;background:var(--gray-50);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.acc-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.verdict-box{margin:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px}
+.verdict-box p{font-size:12px;color:var(--text-soft);line-height:1.6;margin-bottom:10px}
+.cta-btn{width:100%;padding:12px;border-radius:var(--radius-md);background:var(--blue-600);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:background .15s}
+.cta-btn:hover{background:var(--blue-800)}
+
+/* ===== DASHBOARD ===== */
+.membership-card{margin:14px 16px;background:var(--surface);border:1px solid var(--blue-200);border-radius:var(--radius-md);overflow:hidden}
+.mem-top{background:var(--blue-600);padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start}
+.mem-plan-name{font-size:16px;font-weight:700}
+.mem-plan-sub{font-size:11px;opacity:.8;margin-top:2px}
+.mem-badge-tag{font-size:10px;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.3)}
+.mem-price-row{display:flex;align-items:baseline;gap:4px;margin-top:8px}
+.mem-price{font-size:28px;font-weight:700}
+.mem-cycle{font-size:12px;opacity:.8}
+.mem-body{padding:12px 14px}
+.perk-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-soft)}
+.perk-row:last-child{border-bottom:none}
+.perk-icon{width:16px;height:16px;border-radius:50%;background:var(--blue-50);border:1px solid var(--blue-200);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.perk-icon svg{width:9px;height:9px;color:var(--blue-600)}
+.free-trial-banner{background:var(--teal-50);border-top:1px solid var(--teal-400);padding:8px 14px;font-size:11px;color:var(--teal-600);text-align:center;font-weight:500}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 12px}
+.stat-num{font-size:26px;font-weight:700;color:var(--blue-600)}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:2px}
+.stat-delta{font-size:10px;color:var(--green-600);margin-top:4px;font-weight:500}
+.lang-section{padding:0 16px 14px}
+.lang-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.lang-pill{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--surface);color:var(--text-muted)}
+.lang-pill.active{background:var(--blue-600);color:#fff;border-color:var(--blue-600)}
+.health-timeline{padding:0 16px 14px}
+.timeline-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.timeline-item:last-child{border-bottom:none}
+.timeline-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.timeline-content .tl-title{font-size:12px;font-weight:600;color:var(--text)}
+.timeline-content .tl-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.timeline-content .tl-date{font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* ===== LAB REPORT PAGE ===== */
+.upload-area{margin:14px 16px;border:2px dashed var(--blue-200);border-radius:var(--radius-md);padding:32px 16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--blue-50)}
+.upload-area:hover{border-color:var(--blue-400);background:var(--blue-100)}
+.upload-area svg{width:40px;height:40px;color:var(--blue-400);margin:0 auto 10px}
+.upload-area p{font-size:13px;color:var(--text-muted)}
+.upload-area strong{color:var(--blue-600);font-size:14px;display:block;margin-bottom:6px}
+.upload-btn{background:var(--blue-600);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 24px;font-size:13px;font-weight:500;margin-top:12px}
+.lab-result{margin:0 16px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;display:none}
+.lab-result.show{display:block}
+.lab-result-header{background:var(--blue-600);padding:12px 14px;color:#fff;font-size:13px;font-weight:600}
+.lab-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px}
+.lab-row:last-child{border-bottom:none}
+.lab-param{color:var(--text-soft)}
+.lab-value{font-weight:600;color:var(--text)}
+.lab-status{font-size:10px;padding:2px 8px;border-radius:20px}
+.lab-normal{background:var(--green-50);color:var(--green-600);border:1px solid var(--green-400)}
+.lab-high{background:var(--red-50);color:var(--red-600);border:1px solid var(--red-400)}
+.lab-low{background:var(--amber-50);color:var(--amber-600);border:1px solid var(--amber-400)}
+.lab-ai-summary{margin:0 16px 14px;background:var(--amber-50);border:1px solid var(--amber-400);border-radius:var(--radius-md);padding:13px 14px;display:none}
+.lab-ai-summary.show{display:block}
+.lab-ai-summary-title{font-size:11px;font-weight:600;color:var(--amber-800);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.lab-ai-summary p{font-size:12px;color:var(--amber-800);line-height:1.6}
+
+/* ===== NOTIFICATIONS ===== */
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:background .12s}
+.notif-item:hover{background:var(--blue-50)}
+.notif-item.unread{background:var(--blue-50)}
+.notif-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notif-icon svg{width:18px;height:18px}
+.notif-content .notif-title{font-size:13px;font-weight:600;color:var(--text)}
+.notif-content .notif-body{font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.4}
+.notif-content .notif-time{font-size:10px;color:var(--text-muted);margin-top:4px}
+.unread-dot{width:8px;height:8px;background:var(--blue-600);border-radius:50%;margin-top:6px;flex-shrink:0}
+
+/* ===== VIDEO CHECKER PAGE ===== */
+.vc-hero{background:linear-gradient(135deg,var(--red-600) 0%,var(--red-800) 100%);padding:16px 18px 14px;color:#fff;position:relative;overflow:hidden}
+.vc-hero::after{content:'';position:absolute;top:-20px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,.05);border-radius:50%}
+.vc-hero-label{font-size:11px;letter-spacing:.08em;opacity:.7;text-transform:uppercase;margin-bottom:3px}
+.vc-hero-title{font-size:18px;font-weight:700;line-height:1.2;margin-bottom:3px}
+.vc-hero-sub{font-size:12px;opacity:.8}
+
+.vc-input-card{margin:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px}
+.vc-url-row{display:flex;gap:8px;margin-bottom:10px}
+.vc-url-input{flex:1;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text-soft);outline:none;transition:border .15s;background:var(--bg)}
+.vc-url-input:focus{border-color:var(--blue-400)}
+.vc-check-btn{background:var(--blue-600);color:#fff;font-size:12px;font-weight:600;padding:10px 16px;border-radius:var(--radius-sm);border:none;white-space:nowrap;transition:background .15s}
+.vc-check-btn:hover{background:var(--blue-800)}
+.vc-check-btn:disabled{background:var(--gray-400);cursor:not-allowed}
+.vc-upload-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.vc-upload-area{flex:1;border:1px dashed var(--blue-200);border-radius:var(--radius-sm);padding:8px 12px;text-align:center;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .15s;background:var(--blue-50)}
+.vc-upload-area:hover{border-color:var(--blue-400);color:var(--blue-600)}
+.vc-or{font-size:11px;color:var(--text-muted);flex-shrink:0}
+.vc-samples-label{font-size:10px;color:var(--text-muted);margin-bottom:5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.vc-sample-pills{display:flex;gap:5px;flex-wrap:wrap}
+.vc-sample-pill{font-size:10px;padding:4px 10px;border-radius:20px;background:var(--red-50);color:var(--red-600);border:1px solid var(--red-100);cursor:pointer;transition:all .15s}
+.vc-sample-pill:hover{background:var(--red-100);border-color:var(--red-400)}
+
+.vc-progress{margin:0 16px 10px;height:4px;border-radius:2px;background:var(--gray-100);overflow:hidden;display:none}
+.vc-progress-fill{height:100%;border-radius:2px;background:var(--blue-400);width:0;transition:width .5s ease}
+.vc-status-msg{text-align:center;font-size:11px;color:var(--text-muted);margin:0 16px 10px;display:none}
+
+.vc-dual-panel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 12px;display:none}
+.vc-dual-panel.show{display:grid}
+.vc-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.vc-panel-head{padding:9px 12px;display:flex;align-items:center;gap:7px}
+.vc-panel-head.ai-head{background:var(--amber-50);border-bottom:1px solid var(--amber-400)}
+.vc-panel-head.doc-head{background:var(--blue-50);border-bottom:1px solid var(--blue-200)}
+.vc-panel-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.vc-panel-icon.ai{background:var(--amber-400);color:#fff}
+.vc-panel-icon.doc{background:var(--blue-600);color:#fff}
+.vc-panel-title{font-size:11px;font-weight:600;flex:1}
+.vc-panel-title.ai{color:var(--amber-800)}
+.vc-panel-title.doc{color:var(--blue-800)}
+.vc-trust-chip{font-size:9px;padding:2px 7px;border-radius:20px;border:1px solid;font-weight:500}
+.vc-chip-trust{background:var(--green-50);color:var(--green-600);border-color:var(--green-400)}
+.vc-chip-partial{background:var(--amber-50);color:var(--amber-600);border-color:var(--amber-400)}
+.vc-chip-false{background:var(--red-50);color:var(--red-600);border-color:var(--red-400)}
+.vc-panel-body{padding:10px 12px}
+.vc-score-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.vc-score-num{font-size:20px;font-weight:700;color:var(--text)}
+.vc-score-track{flex:1;height:5px;border-radius:3px;background:var(--gray-100);overflow:hidden}
+.vc-score-fill{height:100%;border-radius:3px;transition:width .7s ease}
+.vc-panel-summary{font-size:11px;color:var(--text-muted);line-height:1.5}
+
+.vc-claims{margin:0 16px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;display:none}
+.vc-claims.show{display:block}
+.vc-claims-head{background:var(--blue-600);padding:10px 14px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.vc-claims-head-title{font-size:12px;font-weight:600}
+.vc-claims-head-sub{font-size:10px;opacity:.8}
+.vc-claim-item{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:9px}
+.vc-claim-item:last-child{border-bottom:none}
+.vc-claim-item.claim-false{background:var(--red-50)}
+.vc-claim-item.claim-partial{background:var(--amber-50)}
+.vc-claim-item.claim-true{background:var(--green-50)}
+.vc-claim-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.vc-claim-dot.dot-false{background:var(--red-400)}
+.vc-claim-dot.dot-partial{background:var(--amber-400)}
+.vc-claim-dot.dot-true{background:var(--green-400)}
+.vc-claim-content{flex:1}
+.vc-claim-label-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.vc-claim-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.claim-false .vc-claim-label{color:var(--red-600)}
+.claim-partial .vc-claim-label{color:var(--amber-600)}
+.claim-true .vc-claim-label{color:var(--green-600)}
+.vc-false-alert{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;background:var(--red-600);color:#fff;padding:1px 7px;border-radius:3px;letter-spacing:.03em;animation:alertPulse 2s infinite}
+@keyframes alertPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.vc-claim-quote{font-size:12px;font-weight:600;margin-bottom:4px;line-height:1.4}
+.claim-false .vc-claim-quote{color:var(--red-800)}
+.claim-partial .vc-claim-quote{color:var(--amber-800)}
+.claim-true .vc-claim-quote{color:var(--green-800)}
+.vc-claim-explain{font-size:11px;color:var(--text-muted);line-height:1.5;margin-bottom:3px}
+.vc-claim-fix{font-size:11px;color:var(--teal-600);line-height:1.5;font-weight:500}
+
+.vc-diff{margin:0 16px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;display:none}
+.vc-diff.show{display:block}
+.vc-diff-head{background:var(--blue-800);padding:10px 14px;color:#fff;font-size:12px;font-weight:600}
+.vc-diff-sub{font-size:10px;opacity:.8;font-weight:400;margin-top:1px}
+.vc-diff-grid{display:grid;grid-template-columns:1fr 1fr}
+.vc-diff-col{padding:12px 14px}
+.vc-diff-col.ai-col{background:var(--amber-50);border-right:1px solid var(--border)}
+.vc-diff-col.doc-col{background:var(--blue-50)}
+.vc-diff-col-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.ai-col .vc-diff-col-head{color:var(--amber-800)}
+.doc-col .vc-diff-col-head{color:var(--blue-800)}
+.vc-diff-col-body{font-size:11px;line-height:1.5}
+.ai-col .vc-diff-col-body{color:var(--amber-600)}
+.doc-col .vc-diff-col-body{color:var(--blue-800)}
+
+.vc-alt{margin:0 16px 12px;background:var(--teal-50);border:1px solid var(--teal-400);border-radius:var(--radius-md);padding:13px 14px;display:none}
+.vc-alt.show{display:block}
+.vc-alt-title{font-size:11px;font-weight:600;color:var(--teal-600);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.vc-alt-list{display:flex;flex-direction:column;gap:6px}
+.vc-alt-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--teal-800);line-height:1.5}
+.vc-alt-num{width:18px;height:18px;border-radius:50%;background:var(--teal-600);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+.vc-verdict{margin:0 16px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;display:none}
+.vc-verdict.show{display:block}
+.vc-verdict-top{padding:12px 14px;display:flex;align-items:center;gap:10px}
+.vc-verdict-top.vt-danger{background:var(--red-50);border-bottom:1px solid var(--red-100)}
+.vc-verdict-top.vt-warning{background:var(--amber-50);border-bottom:1px solid var(--amber-400)}
+.vc-verdict-top.vt-safe{background:var(--green-50);border-bottom:1px solid var(--green-400)}
+.vc-verdict-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.vt-danger .vc-verdict-icon{background:var(--red-100)}
+.vt-warning .vc-verdict-icon{background:var(--amber-50);border:1px solid var(--amber-400)}
+.vt-safe .vc-verdict-icon{background:var(--green-50);border:1px solid var(--green-400)}
+.vc-verdict-title{font-size:13px;font-weight:600}
+.vt-danger .vc-verdict-title{color:var(--red-800)}
+.vt-warning .vc-verdict-title{color:var(--amber-800)}
+.vt-safe .vc-verdict-title{color:var(--green-800)}
+.vc-verdict-body{padding:12px 14px;font-size:12px;color:var(--text-soft);line-height:1.6}
+.vc-verdict-cta{padding:0 14px 13px;display:flex;gap:8px}
+.vc-cta-primary{flex:1;background:var(--blue-600);color:#fff;font-size:12px;font-weight:600;padding:9px 14px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:background .15s}
+.vc-cta-primary:hover{background:var(--blue-800)}
+.vc-cta-secondary{background:var(--surface);color:var(--text-soft);font-size:12px;padding:9px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer}
+
+.vc-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;max-width:430px;margin:0 auto;display:none}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-xl) var(--radius-xl) 0 0;padding:20px 18px 32px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:14px}
+.modal-close{float:right;background:none;border:none;font-size:20px;color:var(--text-muted);cursor:pointer;margin-top:-4px}
+.modal-form label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px;margin-top:12px}
+.modal-form input,.modal-form select,.modal-form textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text);outline:none;transition:border .15s}
+.modal-form input:focus,.modal-form select:focus,.modal-form textarea:focus{border-color:var(--blue-400)}
+.modal-btn{width:100%;padding:13px;border-radius:var(--radius-md);background:var(--blue-600);color:#fff;font-size:14px;font-weight:600;border:none;margin-top:16px;cursor:pointer}
+.modal-btn.secondary{background:var(--blue-50);color:var(--blue-800);border:1px solid var(--blue-200);margin-top:8px}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pill-select{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer}
+.pill-select.selected{background:var(--blue-600);color:#fff;border-color:var(--blue-600)}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--blue-800);color:#fff;font-size:13px;padding:10px 20px;border-radius:var(--radius-md);opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== UTILITIES ===== */
+.divider{height:1px;background:var(--border);margin:6px 0}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.empty-state svg{width:48px;height:48px;color:var(--blue-200);margin:0 auto 12px}
+.empty-state p{font-size:13px}
+.page-header{padding:14px 16px 0;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--blue-600)}
+
+/* ===== RESPONSIVE ===== */
+@media(min-width:430px){#app{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+@media(max-width:375px){.quick-grid{grid-template-columns:repeat(4,1fr)}.quick-label{font-size:10px}}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="logo">Heal<span>ix</span></div>
+    </div>
+    <div class="topbar-actions">
+      <div id="langDisplay" class="lang-btn" onclick="openModal('langModal')">EN</div>
+      <button class="notif-btn" onclick="showPage('notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot" id="notifDot"></span>
+      </button>
+    </div>
+  </div>
+  <div class="greeting" id="greetingBar">Good morning, Pramath 🌿</div>
+
+  <!-- PAGES -->
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-label">Healix — trusted healthcare</div>
+      <div class="hero-title">Your health,<br>verified.</div>
+      <div class="hero-sub">Doctors · AI-assisted · Emergency ready</div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="homeSearch" placeholder="Search doctors, symptoms, medicines…" oninput="handleSearch(this.value)">
+      </div>
+    </div>
+
+    <div id="searchResults" style="display:none;padding:10px 16px"></div>
+
+    <div class="sos-strip">
+      <div class="sos-strip-left">
+        <div class="sos-title">Emergency nearby?</div>
+        <div class="sos-sub">Ambulance · medicine · doctor locator</div>
+      </div>
+      <button class="sos-btn" onclick="showPage('emergency')">SOS →</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Quick access</div>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="showPage('doctors')">
+          <div class="quick-icon" style="background:var(--blue-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="quick-label">Find doctor</div>
+          <div class="quick-sub">Near you</div>
+        </div>
+        <div class="quick-card" onclick="showPage('lab')">
+          <div class="quick-icon" style="background:var(--amber-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l3 3 3-3V3"/><path d="m5 15-3 6h20l-3-6"/></svg></div>
+          <div class="quick-label">Lab report</div>
+          <div class="quick-sub">AI reader</div>
+        </div>
+        <div class="quick-card" onclick="showPage('compare')">
+          <div class="quick-icon" style="background:var(--teal-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg></div>
+          <div class="quick-label">Ask AI</div>
+          <div class="quick-sub">Free 3/mo</div>
+        </div>
+        <div class="quick-card" onclick="showToast('Medicine delivery coming soon!')">
+          <div class="quick-icon" style="background:var(--pink-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#993556" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+          <div class="quick-label">Medicines</div>
+          <div class="quick-sub">Doorstep</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Checker promo strip on Home -->
+    <div style="margin:0 16px 4px;background:linear-gradient(135deg,var(--red-600),var(--red-800));border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="showPage('videochecker')">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#fff">🎬 Video fact-checker</div>
+        <div style="font-size:11px;color:#ffb5b5;margin-top:2px">Detect false health claims in any video</div>
+      </div>
+      <div style="background:#fff;color:var(--red-600);font-size:11px;font-weight:600;padding:6px 12px;border-radius:var(--radius-sm)">Check →</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Verified doctors online <a href="#" onclick="showPage('doctors');return false">See all</a></div>
+      <div id="homeDoctorList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Health reels <a href="#" onclick="showPage('reels');return false">See all</a></div>
+      <div id="homeReelPreview"></div>
+    </div>
+  </div>
+
+  <!-- REELS PAGE -->
+  <div class="page" id="page-reels">
+    <div class="page-header" style="margin-bottom:10px">Health reels — verified content</div>
+    <div style="padding:0 16px;font-size:12px;color:var(--text-muted);margin-bottom:12px">Every video reviewed by NMC-verified doctors. No misinformation.</div>
+    <div style="padding:0 16px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="reelFilters"></div>
+    <div style="padding:0 16px" id="reelList"></div>
+  </div>
+
+  <!-- EMERGENCY PAGE -->
+  <div class="page" id="page-emergency">
+    <div class="em-status-bar">
+      <div class="em-status-label">Emergency mode — <span id="emLocation">Bengaluru, KA</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div class="em-status-dot"></div><span style="font-size:11px;color:#4ade80">Live</span></div>
+    </div>
+
+    <div class="map-container">
+      <svg class="map-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#B5D4F4" stroke-width="0.5"/></pattern></defs>
+        <rect width="400" height="200" fill="#EBF4FF"/>
+        <rect width="400" height="200" fill="url(#grid)"/>
+        <line x1="0" y1="100" x2="400" y2="100" stroke="#C8DCEF" stroke-width="3"/>
+        <line x1="200" y1="0" x2="200" y2="200" stroke="#C8DCEF" stroke-width="3"/>
+        <line x1="0" y1="50" x2="400" y2="150" stroke="#D8E8F5" stroke-width="2"/>
+        <circle cx="200" cy="100" r="10" fill="#E24B4A" opacity="0.3"/>
+        <circle cx="200" cy="100" r="6" fill="#E24B4A"/>
+        <circle cx="200" cy="100" r="3" fill="#fff"/>
+        <text x="208" y="92" font-size="9" fill="#A32D2D" font-weight="600">You</text>
+        <circle cx="130" cy="65" r="7" fill="#185FA5"/>
+        <circle cx="130" cy="65" r="3" fill="#fff"/>
+        <text x="138" y="61" font-size="9" fill="#0C447C">Dr. Sharma</text>
+        <line x1="200" y1="100" x2="130" y2="65" stroke="#185FA5" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="155" y="77" font-size="8" fill="#185FA5">1.2 km</text>
+        <circle cx="280" cy="130" r="7" fill="#185FA5"/>
+        <circle cx="280" cy="130" r="3" fill="#fff"/>
+        <text x="288" y="126" font-size="9" fill="#0C447C">Dr. Mehta</text>
+        <line x1="200" y1="100" x2="280" y2="130" stroke="#185FA5" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="232" y="125" font-size="8" fill="#185FA5">2.1 km</text>
+        <circle cx="310" cy="55" r="7" fill="#185FA5"/>
+        <circle cx="310" cy="55" r="3" fill="#fff"/>
+        <text x="318" y="51" font-size="9" fill="#0C447C">Dr. Rao</text>
+        <rect x="87" y="150" width="14" height="10" rx="2" fill="#EF9F27"/>
+        <text x="82" y="143" font-size="9" fill="#633806">Ambulance</text>
+        <line x1="200" y1="100" x2="94" y2="155" stroke="#EF9F27" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="118" y="145" font-size="8" fill="#854F0B">2.8 km</text>
+        <circle cx="14" cy="185" r="4" fill="#E24B4A"/>
+        <text x="20" y="188" font-size="9" fill="#5F5E5A">You</text>
+        <circle cx="48" cy="185" r="4" fill="#185FA5"/>
+        <text x="54" y="188" font-size="9" fill="#5F5E5A">Doctor</text>
+        <rect x="90" y="181" width="8" height="6" rx="1" fill="#EF9F27"/>
+        <text x="100" y="188" font-size="9" fill="#5F5E5A">Ambulance</text>
+      </svg>
+      <div class="map-overlay-label">Live · Bengaluru</div>
+    </div>
+
+    <div style="padding:0 16px">
+      <div class="section-title">Nearby doctors</div>
+      <div class="em-card">
+        <div class="em-card-left">
+          <div class="em-card-name">Dr. Rajesh Sharma</div>
+          <div class="em-card-dist">Cardiologist · 1.2 km away</div>
+          <div class="em-eta" style="color:var(--green-600)">Available now</div>
+        </div>
+        <button class="btn-call" onclick="openCallModal('Dr. Rajesh Sharma')">Call now</button>
+      </div>
+      <div class="em-card">
+        <div class="em-card-left">
+          <div class="em-card-name">Dr. Priya Mehta</div>
+          <div class="em-card-dist">General physician · 2.1 km away</div>
+          <div class="em-eta" style="color:var(--green-600)">Available now</div>
+        </div>
+        <button class="btn-call" onclick="openCallModal('Dr. Priya Mehta')">Call now</button>
+      </div>
+      <div class="em-card">
+        <div class="em-card-left">
+          <div class="em-card-name">Dr. Sneha Rao</div>
+          <div class="em-card-dist">Paediatrician · 3.4 km away</div>
+          <div class="em-eta">ETA ~10 min</div>
+        </div>
+        <button class="btn-call" onclick="openCallModal('Dr. Sneha Rao')">Call now</button>
+      </div>
+
+      <div class="section-title" style="margin-top:14px">Ambulance dispatch</div>
+      <div class="em-card ambulance">
+        <div class="em-card-left">
+          <div class="em-card-name">Ambulance 108 — Government</div>
+          <div class="em-card-dist">2.8 km away · Free of cost</div>
+          <div class="em-eta">ETA ~8 min</div>
+        </div>
+        <button class="btn-dispatch" onclick="dispatchAmbulance()">Dispatch</button>
+      </div>
+      <div class="em-card ambulance">
+        <div class="em-card-left">
+          <div class="em-card-name">Medivac Private Ambulance</div>
+          <div class="em-card-dist">1.9 km away · ₹400–800</div>
+          <div class="em-eta">ETA ~5 min</div>
+        </div>
+        <button class="btn-dispatch" onclick="dispatchAmbulance()">Dispatch</button>
+      </div>
+
+      <div class="section-title" style="margin-top:14px">No doctors nearby? Get remote help</div>
+      <div class="remote-help">
+        <div class="remote-buttons">
+          <div class="remote-btn" onclick="showToast('Connecting to video consult…')">📹 Video consult</div>
+          <div class="remote-btn" onclick="showToast('Opening medicine delivery…')">💊 Medicine delivery</div>
+          <div class="remote-btn" onclick="openFirstAid()">🩹 First aid guide</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCTORS PAGE -->
+  <div class="page" id="page-doctors">
+    <div style="padding:10px 16px">
+      <div class="search-box" style="border:1px solid var(--border);margin-bottom:12px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text-muted)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search by name or specialty…" style="flex:1;border:none;outline:none;font-size:13px;color:var(--text-soft)">
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="specFilters"></div>
+      <div id="doctorList"></div>
+    </div>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div class="page" id="page-chat">
+    <div id="chatListView">
+      <div style="padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--blue-600);margin-bottom:4px">Your doctors</div>
+      <div id="chatDoctorList"></div>
+    </div>
+    <div id="chatConversationView" style="display:none;flex-direction:column">
+      <div class="chat-header">
+        <button onclick="backToList()" style="background:none;border:none;padding:4px;margin-right:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+        <div class="doc-avatar" id="chatDocAvatar">DR</div>
+        <div class="chat-doc-info">
+          <div class="chat-doc-name" id="chatDocName">Dr. Rajesh Sharma
+            <span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span>
+          </div>
+          <div class="chat-doc-status">Online now</div>
+          <div class="chat-doc-limit"><span class="free-counter" id="freeCounter">3 free texts left</span></div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <textarea id="chatInput" placeholder="Type a message…" rows="1" onkeydown="handleChatKey(event)"></textarea>
+        <button class="send-btn" onclick="sendChatMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI VS DOCTOR PAGE -->
+  <div class="page" id="page-compare">
+    <div class="compare-intro">
+      Same symptom: <strong>"I have chest tightness and breathlessness."</strong><br>
+      See why a real doctor gives a better answer than AI.
+    </div>
+    <div class="compare-grid">
+      <div class="compare-card ai-card">
+        <div class="compare-card-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          AI response
+        </div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>No patient history</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>Generic: "stress or acidity"</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>No dosage personalisation</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>Cannot order tests</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>No prescription rights</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Available 24/7</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Instant response</div>
+      </div>
+      <div class="compare-card doc-card">
+        <div class="compare-card-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Your doctor
+        </div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Knows your BP history</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Advised ECG based on past</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Correct personalised dosage</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Can refer specialists</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Can prescribe medicine</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>Needs appointment</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>May not be 24/7</div>
+      </div>
+    </div>
+
+    <div class="accuracy-section">
+      <div class="section-title">Accuracy comparison</div>
+      <div class="acc-row">
+        <div class="acc-label-row"><span class="name">AI (generalised)</span><span class="score" style="color:var(--amber-600)">58%</span></div>
+        <div class="acc-track"><div class="acc-fill" style="width:58%;background:var(--amber-400)"></div></div>
+      </div>
+      <div class="acc-row">
+        <div class="acc-label-row"><span class="name">Verified Doctor</span><span class="score" style="color:var(--blue-600)">94%</span></div>
+        <div class="acc-track"><div class="acc-fill" style="width:94%;background:var(--blue-600)"></div></div>
+      </div>
+      <div class="acc-row">
+        <div class="acc-label-row"><span class="name">Doctor + AI together</span><span class="score" style="color:var(--teal-600)">97%</span></div>
+        <div class="acc-track"><div class="acc-fill" style="width:97%;background:var(--teal-400)"></div></div>
+      </div>
+    </div>
+
+    <div class="verdict-box">
+      <p>AI gives <strong>generalised answers</strong> — it doesn't know your allergies, past diagnoses, or current medications. A verified doctor on Healix knows your complete history and gives the right dosage, the right tests, and the right referrals.</p>
+      <p style="margin-bottom:0">Use AI on Healix to understand your symptoms. Then consult a real doctor for your treatment.</p>
+      <button class="cta-btn" style="margin-top:12px" onclick="showPage('doctors')">Book a real doctor →</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page" id="page-dashboard">
+    <div class="membership-card">
+      <div class="mem-top">
+        <div>
+          <div class="mem-plan-name">Free plan</div>
+          <div class="mem-plan-sub">All features unlocked for 30 days</div>
+          <div class="mem-price-row">
+            <div class="mem-price">₹5</div>
+            <div class="mem-cycle">/ month after trial</div>
+          </div>
+        </div>
+        <div><span class="mem-badge-tag" id="trialBadge">18 days left</span></div>
+      </div>
+      <div class="mem-body">
+        <div class="perk-row"><div class="perk-icon"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>3 free doctor texts per month (always included)</div>
+        <div class="perk-row"><div class="perk-icon"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>Unlimited AI health questions</div>
+        <div class="perk-row"><div class="perk-icon"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>Emergency SOS — always free, no subscription needed</div>
+        <div class="perk-row"><div class="perk-icon"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>Health reels · Lab report reader · Medicine info</div>
+        <div class="perk-row"><div class="perk-icon"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>Video authenticity checker — catch health misinformation</div>
+        <div class="perk-row"><div class="perk-icon"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>Multi-language support (English, Hindi + regional)</div>
+      </div>
+      <div class="free-trial-banner">No credit card needed · Cancel anytime · Emergency always free</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="statTexts">3</div><div class="stat-label">Doctor texts used</div><div class="stat-delta">0 remaining this month</div></div>
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">AI questions asked</div><div class="stat-delta">Unlimited plan</div></div>
+      <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Lab reports scanned</div><div class="stat-delta">Last: Apr 14</div></div>
+      <div class="stat-card"><div class="stat-num">1</div><div class="stat-label">Appointments booked</div><div class="stat-delta">Next: Apr 22</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Language preference</div>
+      <div class="lang-grid" id="langGrid">
+        <div class="lang-pill active" onclick="selectLang(this,'en','EN')">English</div>
+        <div class="lang-pill" onclick="selectLang(this,'hi','हि')">हिंदी</div>
+        <div class="lang-pill" onclick="selectLang(this,'te','తె')">తెలుగు</div>
+        <div class="lang-pill" onclick="selectLang(this,'ta','த')">தமிழ்</div>
+        <div class="lang-pill" onclick="selectLang(this,'mr','म')">मराठी</div>
+        <div class="lang-pill" onclick="selectLang(this,'kn','ಕ')">ಕನ್ನಡ</div>
+        <div class="lang-pill" onclick="selectLang(this,'bn','ব')">বাংলা</div>
+        <div class="lang-pill" onclick="selectLang(this,'gu','ગ')">ગુજરાતી</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Health timeline</div>
+      <div class="health-timeline" style="padding:0">
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--blue-600)"></div><div class="timeline-content"><div class="tl-title">ECG report scanned</div><div class="tl-sub">AI analysis: Normal sinus rhythm</div><div class="tl-date">Apr 14, 2026</div></div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--green-400)"></div><div class="timeline-content"><div class="tl-title">Chat with Dr. Rajesh Sharma</div><div class="tl-sub">BP medication consultation</div><div class="tl-date">Apr 10, 2026</div></div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--amber-400)"></div><div class="timeline-content"><div class="tl-title">Appointment booked</div><div class="tl-sub">Dr. Sharma — Apr 22, 11:00 AM</div><div class="tl-date">Apr 10, 2026</div></div></div>
+        <div class="timeline-item"><div class="timeline-dot" style="background:var(--teal-400)"></div><div class="timeline-content"><div class="tl-title">Blood test uploaded</div><div class="tl-sub">Haemoglobin: Normal · Glucose: Slightly high</div><div class="tl-date">Mar 28, 2026</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB REPORT PAGE -->
+  <div class="page" id="page-lab">
+    <div style="padding:12px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-bottom:1px solid var(--border)">Upload your lab report PDF or image. Our AI will explain every result in plain language and flag abnormal values.</div>
+
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <strong>Upload lab report</strong>
+      <p>PDF, JPG, PNG supported<br>Your data is private & secure</p>
+      <button class="upload-btn" onclick="event.stopPropagation();analyzeReport()">Analyse report</button>
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="fileSelected(this)">
+    </div>
+
+    <div class="lab-ai-summary" id="labAiSummary">
+      <div class="lab-ai-summary-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        AI explanation
+      </div>
+      <p id="labAiText">Your haemoglobin is within normal range — good news. Your fasting glucose is slightly elevated at 112 mg/dL. This is pre-diabetic range. No need to panic, but consider reducing sugary food intake and consult a doctor if it remains high in your next test. Your thyroid (TSH) is perfectly normal.</p>
+    </div>
+
+    <div class="lab-result" id="labResult">
+      <div class="lab-result-header">Lab report analysis — Apr 14, 2026</div>
+      <div class="lab-row"><span class="lab-param">Haemoglobin</span><span class="lab-value">13.8 g/dL</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Fasting Glucose</span><span class="lab-value">112 mg/dL</span><span class="lab-status lab-high">High</span></div>
+      <div class="lab-row"><span class="lab-param">TSH (Thyroid)</span><span class="lab-value">2.4 mIU/L</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Total Cholesterol</span><span class="lab-value">198 mg/dL</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Vitamin D</span><span class="lab-value">18 ng/mL</span><span class="lab-status lab-low">Low</span></div>
+      <div class="lab-row"><span class="lab-param">WBC Count</span><span class="lab-value">7,200 /µL</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Platelets</span><span class="lab-value">2.8 L/µL</span><span class="lab-status lab-normal">Normal</span></div>
+    </div>
+
+    <div style="padding:0 16px 16px;display:none" id="labCta">
+      <button class="cta-btn" onclick="showPage('doctors')">Discuss results with a doctor →</button>
+    </div>
+  </div>
+
+  <!-- VIDEO AUTHENTICITY CHECKER PAGE -->
+  <div class="page" id="page-videochecker">
+    <div class="vc-hero">
+      <div class="vc-hero-label">Healix — Fact Check</div>
+      <div class="vc-hero-title">🎬 Video authenticity checker</div>
+      <div class="vc-hero-sub">AI + verified doctor review every health claim · False info flagged in red</div>
+    </div>
+
+    <div class="vc-input-card">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Paste video link or upload</div>
+      <div class="vc-url-row">
+        <input type="text" class="vc-url-input" id="vcUrl" placeholder="Paste YouTube, Instagram, or any video URL…">
+        <button class="vc-check-btn" id="vcCheckBtn" onclick="vcRunCheck()">Check video</button>
+      </div>
+      <div class="vc-upload-row">
+        <div class="vc-upload-area" onclick="showToast('Video file upload — tap Check video to demo')">
+          📁 Upload video file (MP4, MOV, AVI)
+        </div>
+        <div class="vc-or">or</div>
+      </div>
+      <div class="vc-samples-label">Try a sample topic</div>
+      <div class="vc-sample-pills">
+        <div class="vc-sample-pill" onclick="vcLoadDemo('fever')">🌡 Fever self-treatment</div>
+        <div class="vc-sample-pill" onclick="vcLoadDemo('diabetes')">🩸 Diabetes cure myth</div>
+        <div class="vc-sample-pill" onclick="vcLoadDemo('bp')">❤️ BP home remedy</div>
+        <div class="vc-sample-pill" onclick="vcLoadDemo('vitamin')">☀️ Vitamin D megadose</div>
+      </div>
+    </div>
+
+    <div class="vc-progress" id="vcProgress"><div class="vc-progress-fill" id="vcProgressFill"></div></div>
+    <div class="vc-status-msg" id="vcStatusMsg">Initialising…</div>
+
+    <!-- Dual Score Panel -->
+    <div class="vc-dual-panel" id="vcDualPanel">
+      <div class="vc-panel">
+        <div class="vc-panel-head ai-head">
+          <div class="vc-panel-icon ai">AI</div>
+          <div class="vc-panel-title ai">AI analysis</div>
+          <span class="vc-trust-chip" id="vcAiChip">—</span>
+        </div>
+        <div class="vc-panel-body">
+          <div class="vc-score-row">
+            <div class="vc-score-num" id="vcAiScore">—</div>
+            <div style="flex:1"><div class="vc-score-track"><div class="vc-score-fill" id="vcAiFill" style="background:var(--amber-400)"></div></div></div>
+          </div>
+          <div class="vc-panel-summary" id="vcAiSummary">—</div>
+        </div>
+      </div>
+      <div class="vc-panel">
+        <div class="vc-panel-head doc-head">
+          <div class="vc-panel-icon doc">Dr</div>
+          <div class="vc-panel-title doc">Doctor review</div>
+          <span class="vc-trust-chip" id="vcDocChip">—</span>
+        </div>
+        <div class="vc-panel-body">
+          <div class="vc-score-row">
+            <div class="vc-score-num" id="vcDocScore">—</div>
+            <div style="flex:1"><div class="vc-score-track"><div class="vc-score-fill" id="vcDocFill" style="background:var(--blue-600)"></div></div></div>
+          </div>
+          <div class="vc-panel-summary" id="vcDocSummary">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claims Breakdown -->
+    <div class="vc-claims" id="vcClaims">
+      <div class="vc-claims-head">
+        <div>
+          <div class="vc-claims-head-title">Claim-by-claim breakdown</div>
+          <div class="vc-claims-head-sub">Every claim verified · <span style="color:#ffb5b5">⚡ FALSE</span> alerts shown in red</div>
+        </div>
+      </div>
+      <div id="vcClaimsList"></div>
+    </div>
+
+    <!-- Where AI Got It Wrong -->
+    <div class="vc-diff" id="vcDiff">
+      <div class="vc-diff-head">
+        Where AI got it wrong — doctor corrects it
+        <div class="vc-diff-sub">This section proves AI is not always reliable for health information</div>
+      </div>
+      <div class="vc-diff-grid" id="vcDiffGrid"></div>
+    </div>
+
+    <!-- Correct Alternatives -->
+    <div class="vc-alt" id="vcAlt">
+      <div class="vc-alt-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg>
+        Correct &amp; trusted alternatives
+      </div>
+      <div class="vc-alt-list" id="vcAltList"></div>
+    </div>
+
+    <!-- Overall Verdict -->
+    <div class="vc-verdict" id="vcVerdict">
+      <div class="vc-verdict-top" id="vcVerdictTop">
+        <div class="vc-verdict-icon" id="vcVerdictIcon"></div>
+        <div class="vc-verdict-title" id="vcVerdictTitle"></div>
+      </div>
+      <div class="vc-verdict-body" id="vcVerdictBody"></div>
+      <div class="vc-verdict-cta">
+        <button class="vc-cta-primary" onclick="showPage('doctors')">Consult a verified doctor →</button>
+        <button class="vc-cta-secondary" onclick="showToast('Report link copied!')">Share report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS PAGE -->
+  <div class="page" id="page-notifications">
+    <div style="padding:12px 16px 8px;font-size:16px;font-weight:600;color:var(--text)">Notifications</div>
+    <div id="notifList"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="showPage('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" id="nav-reels" onclick="showPage('reels')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+      Reels
+    </button>
+    <button class="nav-sos" onclick="showPage('emergency')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </button>
+    <button class="nav-item" id="nav-videochecker" onclick="showPage('videochecker')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/><line x1="5" y1="11" x2="7" y2="13"/><line x1="7" y1="11" x2="5" y2="13"/></svg>
+      Fact Check
+    </button>
+    <button class="nav-item" id="nav-dashboard" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </button>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="callModal" onclick="closeModal('callModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><button class="modal-close" onclick="closeModal('callModal')">×</button>Call doctor</div>
+    <div style="text-align:center;padding:20px 0">
+      <div class="doc-avatar" style="width:64px;height:64px;margin:0 auto 10px;font-size:18px" id="callDocAvatar">DR</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text)" id="callDocName">Dr. Rajesh Sharma</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Cardiologist · NMC Verified</div>
+      <div style="font-size:13px;color:var(--green-600);margin-top:8px">Available now</div>
+    </div>
+    <button class="modal-btn" onclick="closeModal('callModal');showToast('Connecting call…')">Call now</button>
+    <button class="modal-btn secondary" onclick="closeModal('callModal');startChat()">Message instead</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="firstAidModal" onclick="closeModal('firstAidModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><button class="modal-close" onclick="closeModal('firstAidModal')">×</button>First aid guide</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:var(--red-50);border:1px solid var(--red-400);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--red-600);margin-bottom:4px">Chest pain</div><div style="font-size:11px;color:var(--red-800);line-height:1.5">Make the person sit or lie down. Loosen tight clothing. Do NOT give food/water. Call 108 immediately. If trained, start CPR if unresponsive.</div></div>
+      <div style="background:var(--amber-50);border:1px solid var(--amber-400);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--amber-600);margin-bottom:4px">Heavy bleeding</div><div style="font-size:11px;color:var(--amber-800);line-height:1.5">Apply firm pressure with clean cloth. Elevate the injured area above the heart. Do not remove the cloth. Tie a tourniquet only as a last resort.</div></div>
+      <div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--blue-800);margin-bottom:4px">High fever</div><div style="font-size:11px;color:var(--blue-600);line-height:1.5">Give paracetamol if available. Apply cool wet cloth to forehead. Ensure hydration. Seek doctor if temperature exceeds 103°F or if child under 3 months.</div></div>
+      <div style="background:var(--teal-50);border:1px solid var(--teal-400);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--teal-600);margin-bottom:4px">Snake bite</div><div style="font-size:11px;color:var(--teal-800);line-height:1.5">Keep the person calm and still. Immobilise the bitten limb at or below heart level. Do NOT cut, suck, or apply a tourniquet. Rush to hospital immediately.</div></div>
+    </div>
+    <button class="modal-btn" onclick="closeModal('firstAidModal')">Close guide</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="langModal" onclick="closeModal('langModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><button class="modal-close" onclick="closeModal('langModal')">×</button>Choose language</div>
+    <div class="lang-grid" style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="lang-pill active" onclick="selectLangModal(this,'en','EN')">English</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'hi','हि')">हिंदी</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'te','తె')">తెలుగు</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'ta','த')">தமிழ்</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'mr','म')">मराठी</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'kn','ಕ')">ಕನ್ನಡ</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'bn','ব')">বাংলা</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'gu','ગ')">ગુજરાતી</div>
+    </div>
+    <button class="modal-btn" onclick="closeModal('langModal')">Done</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+const DOCTORS = [
+  {id:1,name:'Dr. Rajesh Sharma',initials:'RS',spec:'Cardiologist',exp:'14 yrs',trust:'gold',score:94,online:true,dist:'1.2 km'},
+  {id:2,name:'Dr. Priya Mehta',initials:'PM',spec:'General Physician',exp:'8 yrs',trust:'silver',score:88,online:true,dist:'2.1 km'},
+  {id:3,name:'Dr. Sneha Rao',initials:'SR',spec:'Paediatrician',exp:'11 yrs',trust:'gold',score:91,online:false,dist:'3.4 km'},
+  {id:4,name:'Dr. Arun Verma',initials:'AV',spec:'Dermatologist',exp:'6 yrs',trust:'silver',score:82,online:true,dist:'4.0 km'},
+  {id:5,name:'Dr. Meena Pillai',initials:'MP',spec:'Gynaecologist',exp:'15 yrs',trust:'gold',score:96,online:true,dist:'2.8 km'},
+  {id:6,name:'Dr. Vijay Kumar',initials:'VK',spec:'Orthopaedic',exp:'10 yrs',trust:'silver',score:85,online:false,dist:'5.1 km'},
+];
+const REELS = [
+  {id:1,title:'Why you should NOT self-medicate fever',doc:'Dr. Priya Mehta',views:'2.4L',likes:'18K',bg:'#DBEAFE',accent:'#185FA5',duration:'4:12',tag:'verified_md',category:'Fever'},
+  {id:2,title:'Understanding your blood pressure readings',doc:'Dr. Rajesh Sharma',views:'1.1L',likes:'9.2K',bg:'#D1FAE5',accent:'#065F46',duration:'6:45',tag:'gold',category:'Heart'},
+  {id:3,title:'Diabetes myths debunked by a doctor',doc:'Dr. Sneha Rao',views:'89K',likes:'7.1K',bg:'#FEF3C7',accent:'#92400E',duration:'5:30',tag:'silver',category:'Diabetes'},
+  {id:4,title:'5 signs you need to see a doctor today',doc:'Dr. Arun Verma',views:'3.2L',likes:'22K',bg:'#FCE7F3',accent:'#9D174D',duration:'3:55',tag:'verified_md',category:'General'},
+  {id:5,title:'How to read your lab report yourself',doc:'Dr. Meena Pillai',views:'1.8L',likes:'14K',bg:'#E0E7FF',accent:'#3730A3',duration:'7:20',tag:'gold',category:'Lab'},
+  {id:6,title:'Mental health: when to seek help',doc:'Dr. Vijay Kumar',views:'2.1L',likes:'19K',bg:'#F0FDF4',accent:'#166534',duration:'8:00',tag:'silver',category:'Mental Health'},
+];
+const NOTIFICATIONS = [
+  {id:1,icon:'appointment',title:'Appointment confirmed',body:'Dr. Rajesh Sharma — Apr 22 at 11:00 AM',time:'Just now',unread:true},
+  {id:2,icon:'lab',title:'Lab report analysis ready',body:'Your ECG report has been reviewed by AI. 1 value flagged.',time:'2 hours ago',unread:true},
+  {id:3,icon:'trust',title:'New verified doctor nearby',body:'Dr. Meena Pillai (Gynaecologist) joined Healix near you.',time:'Yesterday',unread:false},
+  {id:4,icon:'reminder',title:'Medication reminder',body:"Don't forget your BP medication today.",time:'Yesterday',unread:false},
+  {id:5,icon:'tip',title:'Health tip',body:'Staying hydrated can reduce headache frequency by 30%.',time:'2 days ago',unread:false},
+];
+const CHAT_HISTORY = [
+  {role:'them',text:'Hello! How can I help you today?',time:'10:32 AM'},
+  {role:'me',text:'Doctor, I have chest tightness since yesterday and mild breathlessness.',time:'10:33 AM'},
+  {role:'insight',text:'Dr. Sharma knows your history from March. AI would give a generic answer without this context.'},
+  {role:'them',text:"I see your history — you had a similar episode in March. Are you still on your BP medication regularly? Given your past, I'd advise an ECG today.",time:'10:34 AM'},
+  {role:'me',text:'Yes, but I missed 2 days. Will go for an ECG today.',time:'10:35 AM'},
+  {role:'them',text:"Good. Book a slot with me after the ECG and I'll review the report directly. Don't skip your medication again.",time:'10:35 AM'},
+];
+
+// ===== VIDEO CHECKER DATA =====
+const VC_DEMOS = {
+  fever:{
+    title:'Fever self-treatment home remedy video',
+    aiScore:61,aiLabel:'Partially misleading',aiType:'partial',
+    aiSummary:"AI flagged some claims as unverified but missed the dangerous antibiotic advice, rating the video as 'mostly okay'. This is why AI alone is insufficient.",
+    docScore:22,docLabel:'Dangerous — do not follow',docType:'false',
+    docName:'Dr. Priya Mehta',
+    docSummary:'Dr. Priya Mehta (General Physician) found critical misinformation. The video recommends stopping prescribed antibiotics when fever breaks — this causes antibiotic resistance and treatment failure.',
+    claims:[
+      {type:'false',label:'FALSE — dangerous',quote:'"Stop antibiotics once your fever goes down"',explain:'Never stop antibiotics mid-course without your doctor\'s advice. Incomplete courses create drug-resistant bacteria. This is medically dangerous.',fix:'Always complete the full antibiotic course exactly as prescribed by your doctor.'},
+      {type:'partial',label:'Partially misleading',quote:'"Drink cold water to bring down fever quickly"',explain:'Cold water is not harmful, but it is not effective either. Paracetamol at the correct dose is the recommended first-line treatment.',fix:'Use paracetamol 500mg (adults) and consult a doctor if fever exceeds 103°F or lasts over 3 days.'},
+      {type:'true',label:'Accurate',quote:'"Stay hydrated when you have fever"',explain:'Correct. Fever increases fluid loss. Drinking water, ORS, or clear fluids is genuinely helpful.'},
+      {type:'false',label:'FALSE — unproven',quote:'"Boiling ginger water cures viral fever in 2 hours"',explain:'No clinical evidence supports this. Ginger tea is soothing but has no antiviral or antipyretic properties proven at this level.',fix:'Paracetamol and rest are evidence-based. See a doctor if fever persists more than 2 days.'},
+    ],
+    aiWrong:"AI assessed the video as 61% trustworthy and missed the antibiotic-stopping advice, calling it 'minor concerns'. AI lacks clinical judgment to identify the severity of antibiotic resistance risk.",
+    docRight:'Dr. Mehta immediately flagged the antibiotic claim as critically dangerous — a trained physician recognises this pattern from real patient cases of treatment failure due to premature antibiotic discontinuation.',
+    alts:['Complete your antibiotic course exactly as prescribed — even if you feel better early.','For fever: paracetamol 500–1000mg (adults) every 6 hours, plenty of fluids, rest.','Consult a doctor before any home remedy if you have diabetes, heart disease, or other conditions.','For children under 5 with fever above 101°F, always consult a paediatrician — do not self-medicate.'],
+    verdictType:'danger',verdictTitle:'Do not follow this video — contains dangerous medical misinformation',
+    verdictBody:"This video contains at least 2 critical false claims that could cause direct harm. AI alone rated it 61% trustworthy — a verified doctor rated it 22%. This 39-point gap shows why AI cannot replace a practising physician for health advice.",
+  },
+  diabetes:{
+    title:'Diabetes cure with bitter gourd video',
+    aiScore:54,aiLabel:'Partially misleading',aiType:'partial',
+    aiSummary:"AI found some nutritional basis in bitter gourd but could not identify the dangerous implicit message that medication can be replaced. It hedged with 'may help manage blood sugar'.",
+    docScore:18,docLabel:'Dangerous — do not follow',docType:'false',
+    docName:'Dr. Rajesh Sharma',
+    docSummary:'Dr. Rajesh Sharma (Cardiologist): This video implies Type 2 diabetics can replace metformin with bitter gourd juice. This is medically false and potentially fatal — no vegetable cures diabetes.',
+    claims:[
+      {type:'false',label:'FALSE — life-threatening',quote:'"Replace your diabetes medicine with bitter gourd juice"',explain:'Substituting prescribed antidiabetics with any juice risks hyperglycaemia, diabetic ketoacidosis, and death. Never stop diabetes medication without medical supervision.',fix:'Bitter gourd may modestly support glucose as a supplement only — never a replacement for prescribed medication.'},
+      {type:'false',label:'FALSE — unproven',quote:'"3 glasses a day will completely cure Type 2 diabetes in 30 days"',explain:'No scientific evidence supports this. Type 2 diabetes is a chronic metabolic condition. "Cure in 30 days" is a medically false claim.',fix:'Lifestyle changes (diet + exercise + medication adherence) can put diabetes into remission in some cases — only under a doctor\'s supervision.'},
+      {type:'partial',label:'Partially accurate',quote:'"Bitter gourd contains compounds that help lower blood sugar"',explain:'Partially true — bitter gourd contains charantin and polypeptide-p which have mild effects in some studies. But effects are modest, inconsistent, and insufficient alone.'},
+      {type:'true',label:'Accurate',quote:'"Reducing refined carbohydrates helps manage blood sugar"',explain:'Correct. Reducing refined carbs and increasing fibre with a low glycaemic diet is evidence-based advice for diabetes management.'},
+    ],
+    aiWrong:"AI rated the video 54% trustworthy because it acknowledged bitter gourd has some nutritional basis. It failed to detect the dangerous implicit message that medication can be safely replaced.",
+    docRight:'Dr. Sharma noted from patient experience that this type of video causes people to stop metformin. He cited multiple hospitalisation cases from patients who acted on similar social media advice.',
+    alts:['Never stop or reduce diabetes medication without your endocrinologist\'s approval.','HbA1c monitoring every 3 months is essential — no home remedy can replace this.','Dietary support (low GI diet, portion control) is beneficial as an addition to medication, not a replacement.','If interested in complementary approaches, discuss with your doctor — some may be safely added.'],
+    verdictType:'danger',verdictTitle:'Do not follow — dangerous misinformation about diabetes treatment',
+    verdictBody:"This video makes a life-threatening false claim. AI's 54% vs doctor's 18% illustrates AI's key limitation: it cannot weigh the social consequences of health misinformation the way a practising physician can.",
+  },
+  bp:{
+    title:'Home remedy to lower blood pressure video',
+    aiScore:72,aiLabel:'Mostly accurate',aiType:'trust',
+    aiSummary:"AI rated this mostly accurate — recognising that lifestyle advice like reducing salt and exercising is valid. However it missed one dangerous claim about stopping prescribed beta-blockers suddenly.",
+    docScore:45,docLabel:'Partially misleading',docType:'partial',
+    docName:'Dr. Rajesh Sharma',
+    docSummary:'Dr. Rajesh Sharma: Lifestyle advice is broadly valid, but the video includes one dangerous instruction — abruptly stopping beta-blockers without tapering can cause rebound hypertension or cardiac events.',
+    claims:[
+      {type:'true',label:'Accurate',quote:'"Reduce salt intake to below 5g per day for hypertension"',explain:'Correct. WHO recommends less than 5g of salt per day. This is well-supported clinical advice for hypertension management.'},
+      {type:'true',label:'Accurate',quote:'"30 minutes of brisk walking daily helps lower blood pressure"',explain:'Correct. Aerobic exercise is a first-line non-pharmacological intervention for hypertension management.'},
+      {type:'false',label:'FALSE — dangerous',quote:'"If your BP is normal for 2 weeks, you can stop your blood pressure tablets"',explain:'Critically dangerous. BP medication keeps pressure controlled — stopping abruptly (especially beta-blockers) can cause rebound hypertension, angina, or heart attack.',fix:'Only a cardiologist can decide to taper or stop BP medication — never self-discontinue.'},
+      {type:'partial',label:'Partially accurate',quote:'"Garlic supplements can replace one of your BP medicines"',explain:'Garlic has modest evidence for mild BP reduction (3–5 mmHg), but cannot replace prescribed antihypertensives. Only valid as an adjunct, not a replacement.'},
+    ],
+    aiWrong:'AI rated this 72% — it correctly identified healthy lifestyle advice but completely missed the beta-blocker discontinuation danger. It lacks pharmacological context to understand withdrawal risk.',
+    docRight:'Dr. Sharma immediately identified the beta-blocker withdrawal risk from clinical experience — patients who stop propranolol or atenolol abruptly can present with severe rebound hypertension within 24–48 hours.',
+    alts:['Never stop antihypertensive medication without your cardiologist\'s guidance — even if BP feels normal.','DASH diet (fruits, vegetables, low-fat dairy, low sodium) is the gold-standard dietary approach.','If your BP is well-controlled, discuss medication review with your doctor — do not self-discontinue.','Ambulatory BP monitoring (24-hour) gives a much more accurate picture than home readings.'],
+    verdictType:'warning',verdictTitle:'Partially trustworthy — but contains one dangerous claim',
+    verdictBody:"Most lifestyle advice here is sound. However, one instruction about stopping BP medication is medically dangerous. The 27-point gap between AI (72%) and doctor (45%) shows AI cannot assess pharmacological risk the way a cardiologist can.",
+  },
+  vitamin:{
+    title:'Vitamin D megadose — 1 lakh IU per week video',
+    aiScore:48,aiLabel:'Partially misleading',aiType:'partial',
+    aiSummary:"AI was uncertain whether 100,000 IU/week was dangerous — it lacked clinical pharmacology knowledge and only suggested 'consult a doctor' without flagging it as critical.",
+    docScore:12,docLabel:'Dangerous — do not follow',docType:'false',
+    docName:'Dr. Sneha Rao',
+    docSummary:'Dr. Sneha Rao (Paediatrician): 1 lakh (100,000) IU of Vitamin D weekly without blood testing is extremely dangerous — toxicity causes hypercalcaemia, kidney damage, cardiac arrhythmia, and coma.',
+    claims:[
+      {type:'false',label:'FALSE — toxic dose',quote:'"Everyone should take 1 lakh IU Vitamin D every week"',explain:'This dose is 70× the safe upper limit (4,000 IU/day). Without blood testing this can cause Vitamin D toxicity — hypercalcaemia, kidney stones, and organ damage.',fix:'Safe supplementation is 1,000–4,000 IU/day for most adults. Therapeutic high doses exist ONLY under a doctor\'s supervision with regular blood monitoring.'},
+      {type:'false',label:'FALSE — unproven',quote:'"Vitamin D cures depression and replaces antidepressants"',explain:'Vitamin D deficiency is associated with low mood, but supplementing does not cure clinical depression and should never replace prescribed antidepressants.',fix:'Discuss Vitamin D with a psychiatrist before any medication changes — it may be supportive but is not curative.'},
+      {type:'partial',label:'Partially accurate',quote:'"Most Indians are Vitamin D deficient due to indoor lifestyles"',explain:'Broadly accurate — studies show 70–90% of urban Indians have suboptimal Vitamin D levels. However, megadosing is never the solution.'},
+      {type:'true',label:'Accurate',quote:'"Sun exposure between 10 AM–2 PM helps your body produce Vitamin D"',explain:'Correct. 15–20 minutes of midday sun exposure on arms and legs is an effective and safe way to improve Vitamin D levels naturally.'},
+    ],
+    aiWrong:"AI was 'uncertain' about whether 100,000 IU/week was dangerous — it lacked clinical pharmacology to determine this is a toxic dose. It gave a non-committal 'consult a doctor' without flagging critical danger.",
+    docRight:'Dr. Rao diagnosed 3 paediatric patients in the past year with Vitamin D toxicity from exactly this type of social media advice. She identified the specific dose as acutely dangerous from clinical experience.',
+    alts:['Get your 25-hydroxyvitamin D blood test done before starting any supplement.','Safe adult dose: 1,000–2,000 IU/day if deficient; up to 4,000 IU/day as a safe upper limit.','High-dose Vitamin D (25,000–50,000 IU/week) is ONLY safe under doctor supervision with repeat blood tests every 2–3 months.','For children, the dose is weight-based and must be prescribed by a paediatrician only.'],
+    verdictType:'danger',verdictTitle:'Do not follow — toxic dose recommendation that can cause organ damage',
+    verdictBody:"This video recommends a Vitamin D dose that is medically dangerous without physician oversight and blood monitoring. The 36-point difference between AI (48%) and doctor (12%) is stark — AI could not determine the dose was toxic. A trained physician can.",
+  }
+};
+
+let vcCurrentDemo = null;
+let vcChecking = false;
+
+function vcLoadDemo(key) {
+  vcCurrentDemo = VC_DEMOS[key];
+  document.getElementById('vcUrl').value = 'https://example.com/health-video/' + key;
+  showToast('Sample loaded — tap Check video');
+  vcResetResults();
+}
+
+function vcResetResults() {
+  ['vcDualPanel','vcClaims','vcDiff','vcAlt','vcVerdict'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('show'); if(id==='vcDualPanel') el.style.display='none'; }
+  });
+  document.getElementById('vcProgress').style.display = 'none';
+  document.getElementById('vcStatusMsg').style.display = 'none';
+}
+
+function vcRunCheck() {
+  if (vcChecking) return;
+  const url = document.getElementById('vcUrl').value.trim();
+  if (!url) { showToast('Please paste a video URL or select a sample topic'); return; }
+  if (!vcCurrentDemo) {
+    const keys = Object.keys(VC_DEMOS);
+    vcCurrentDemo = VC_DEMOS[keys[Math.floor(Math.random() * keys.length)]];
+  }
+  vcChecking = true;
+  const btn = document.getElementById('vcCheckBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="vc-spinner"></span>Analysing…';
+  vcResetResults();
+
+  const prog = document.getElementById('vcProgress');
+  const fill = document.getElementById('vcProgressFill');
+  const msg = document.getElementById('vcStatusMsg');
+  prog.style.display = 'block';
+  msg.style.display = 'block';
+  fill.style.width = '0%';
+
+  const steps = [
+    [10, 400, 'Fetching video metadata…'],
+    [30, 1000, 'AI scanning all claims in video…'],
+    [52, 1900, 'Sending to ' + vcCurrentDemo.docName + ' for review…'],
+    [74, 2800, 'Cross-checking medical databases…'],
+    [90, 3400, 'Compiling authenticity report…'],
+    [100, 3900, 'Done!'],
+  ];
+  steps.forEach(([pct, delay, text]) => {
+    setTimeout(() => {
+      fill.style.width = pct + '%';
+      msg.textContent = text;
+    }, delay);
+  });
+
+  setTimeout(() => {
+    vcChecking = false;
+    btn.disabled = false;
+    btn.innerHTML = 'Check another';
+    prog.style.display = 'none';
+    msg.style.display = 'none';
+    vcShowResults();
+    const demo = vcCurrentDemo;
+    vcCurrentDemo = null;
+  }, 4200);
+}
+
+function vcShowResults() {
+  const d = vcCurrentDemo || VC_DEMOS.fever;
+  const demo = VC_DEMOS[Object.keys(VC_DEMOS).find(k => VC_DEMOS[k] === d)] ? d : VC_DEMOS.fever;
+
+  // Scores
+  document.getElementById('vcAiScore').textContent = demo.aiScore + '%';
+  document.getElementById('vcAiFill').style.width = demo.aiScore + '%';
+  document.getElementById('vcAiChip').textContent = demo.aiLabel;
+  document.getElementById('vcAiChip').className = 'vc-trust-chip ' + (demo.aiType === 'trust' ? 'vc-chip-trust' : demo.aiType === 'partial' ? 'vc-chip-partial' : 'vc-chip-false');
+  document.getElementById('vcAiSummary').textContent = demo.aiSummary;
+
+  document.getElementById('vcDocScore').textContent = demo.docScore + '%';
+  document.getElementById('vcDocFill').style.width = demo.docScore + '%';
+  const docColor = demo.docScore < 30 ? 'var(--red-600)' : demo.docScore < 60 ? 'var(--amber-400)' : 'var(--blue-600)';
+  document.getElementById('vcDocFill').style.background = docColor;
+  document.getElementById('vcDocChip').textContent = demo.docLabel;
+  document.getElementById('vcDocChip').className = 'vc-trust-chip ' + (demo.docType === 'trust' ? 'vc-chip-trust' : demo.docType === 'partial' ? 'vc-chip-partial' : 'vc-chip-false');
+  document.getElementById('vcDocSummary').textContent = demo.docSummary;
+
+  const dp = document.getElementById('vcDualPanel');
+  dp.style.display = 'grid';
+  dp.classList.add('show');
+
+  // Claims
+  const claimsList = document.getElementById('vcClaimsList');
+  claimsList.innerHTML = demo.claims.map(c => {
+    const typeClass = c.type === 'false' ? 'claim-false' : c.type === 'partial' ? 'claim-partial' : 'claim-true';
+    const dotClass = c.type === 'false' ? 'dot-false' : c.type === 'partial' ? 'dot-partial' : 'dot-true';
+    const alertBadge = c.type === 'false' ? '<span class="vc-false-alert">⚡ FALSE</span>' : '';
+    const fixHtml = c.fix ? `<div class="vc-claim-fix">✓ Correct advice: ${c.fix}</div>` : '';
+    return `<div class="vc-claim-item ${typeClass}">
+      <div class="vc-claim-dot ${dotClass}"></div>
+      <div class="vc-claim-content">
+        <div class="vc-claim-label-row">
+          <span class="vc-claim-label">${c.label}</span>${alertBadge}
+        </div>
+        <div class="vc-claim-quote">${c.quote}</div>
+        <div class="vc-claim-explain">${c.explain}</div>
+        ${fixHtml}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('vcClaims').classList.add('show');
+
+  // AI vs Doctor diff
+  document.getElementById('vcDiffGrid').innerHTML = `
+    <div class="vc-diff-col ai-col">
+      <div class="vc-diff-col-head">AI got this wrong</div>
+      <div class="vc-diff-col-body">${demo.aiWrong}</div>
+    </div>
+    <div class="vc-diff-col doc-col">
+      <div class="vc-diff-col-head">Doctor corrected it</div>
+      <div class="vc-diff-col-body">${demo.docRight}</div>
+    </div>`;
+  document.getElementById('vcDiff').classList.add('show');
+
+  // Alternatives
+  document.getElementById('vcAltList').innerHTML = demo.alts.map((a, i) =>
+    `<div class="vc-alt-item"><div class="vc-alt-num">${i+1}</div><div>${a}</div></div>`
+  ).join('');
+  document.getElementById('vcAlt').classList.add('show');
+
+  // Verdict
+  const vtop = document.getElementById('vcVerdictTop');
+  vtop.className = 'vc-verdict-top vt-' + demo.verdictType;
+  const icons = {danger:'⚡', warning:'⚠️', safe:'✅'};
+  document.getElementById('vcVerdictIcon').textContent = icons[demo.verdictType] || '⚡';
+  document.getElementById('vcVerdictTitle').textContent = demo.verdictTitle;
+  document.getElementById('vcVerdictBody').textContent = demo.verdictBody;
+  document.getElementById('vcVerdict').classList.add('show');
+
+  // Scroll to results
+  setTimeout(() => {
+    document.getElementById('vcDualPanel').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 300);
+}
+
+// ===== EXISTING FUNCTIONS =====
+
+let currentPage = 'home';
+let freeTextsLeft = 3;
+let chatDoctor = DOCTORS[0];
+
+function setGreeting(){
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greetingBar').textContent = g + ', Pramath 🌿';
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  const nav = document.getElementById('nav-' + id);
+  if (nav) nav.classList.add('active');
+  currentPage = id;
+  window.scrollTo(0, 0);
+}
+
+function renderDoctorCard(doc) {
+  const trustLabel = doc.trust === 'gold' ? 'Gold · ' + doc.score + '% accuracy' : 'Silver · ' + doc.score + '% accuracy';
+  const trustClass = doc.trust === 'gold' ? 'trust-gold' : 'trust-silver';
+  return `<div class="doctor-card" onclick="openDoctorChat(${doc.id})">
+    <div class="doc-avatar">${doc.initials}</div>
+    <div class="doc-info">
+      <div class="doc-name">${doc.name}
+        <span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span>
+      </div>
+      <div class="doc-spec">${doc.spec} · ${doc.exp} exp · ${doc.dist}</div>
+      <div class="doc-tags">
+        <span class="trust-pill ${trustClass}">${trustLabel}</span>
+        <span class="trust-pill trust-verified">NMC Verified</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+      <div class="online-dot" style="background:${doc.online ? '#22c55e' : '#d1d5db'}"></div>
+      <div class="online-label" style="color:${doc.online ? '#16a34a' : '#9ca3af'}">${doc.online ? 'Online' : 'Offline'}</div>
+    </div>
+  </div>`;
+}
+
+function renderReelCard(reel) {
+  const tagLabel = reel.tag === 'verified_md' ? 'Verified MD' : reel.tag === 'gold' ? 'Gold accuracy' : 'Silver accuracy';
+  const tagClass = reel.tag === 'verified_md' ? 'trust-verified' : reel.tag === 'gold' ? 'trust-gold' : 'trust-silver';
+  return `<div class="reel-card">
+    <div class="reel-thumb" style="background:${reel.bg}">
+      <div class="play-circle" onclick="showToast('Playing: ${reel.title}')"><div class="play-tri" style="border-left-color:${reel.accent}"></div></div>
+      <div class="reel-duration">${reel.duration}</div>
+    </div>
+    <div class="reel-body">
+      <div class="reel-title">${reel.title}</div>
+      <div class="reel-meta">${reel.doc}</div>
+      <div class="reel-tags">
+        <span class="trust-pill ${tagClass}">${tagLabel}</span>
+      </div>
+      <div class="reel-stats">
+        <div class="reel-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${reel.views} views</div>
+        <div class="reel-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>${reel.likes}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderNotifications() {
+  const icons = {
+    appointment:{bg:'#E6F1FB',stroke:'#185FA5'},
+    lab:{bg:'#FAEEDA',stroke:'#854F0B'},
+    trust:{bg:'#E1F5EE',stroke:'#0F6E56'},
+    reminder:{bg:'#FBEAF0',stroke:'#993556'},
+    tip:{bg:'#EAF3DE',stroke:'#3B6D11'},
+  };
+  return NOTIFICATIONS.map(n => {
+    const ic = icons[n.icon] || icons.tip;
+    return `<div class="notif-item ${n.unread ? 'unread' : ''}" onclick="markRead(${n.id})">
+      <div class="notif-icon" style="background:${ic.bg}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="${ic.stroke}" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="notif-content" style="flex:1">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-body">${n.body}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+      ${n.unread ? '<div class="unread-dot"></div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function initPages() {
+  document.getElementById('homeDoctorList').innerHTML = DOCTORS.slice(0,2).map(d => renderDoctorCard(d)).join('');
+  document.getElementById('homeReelPreview').innerHTML = renderReelCard(REELS[0]);
+  document.getElementById('doctorList').innerHTML = DOCTORS.map(d => renderDoctorCard(d)).join('');
+  const cats = ['All', ...new Set(REELS.map(r => r.category))];
+  document.getElementById('reelFilters').innerHTML = cats.map((c,i) =>
+    `<div class="lang-pill ${i===0?'active':''}" onclick="filterReels('${c}',this)">${c}</div>`).join('');
+  document.getElementById('reelList').innerHTML = REELS.map(r => renderReelCard(r)).join('');
+  const specs = ['All', ...new Set(DOCTORS.map(d => d.spec))];
+  document.getElementById('specFilters').innerHTML = specs.map((s,i) =>
+    `<div class="lang-pill ${i===0?'active':''}" onclick="filterDoctors('${s}',this)">${s}</div>`).join('');
+  document.getElementById('notifList').innerHTML = renderNotifications();
+  document.getElementById('chatDoctorList').innerHTML = DOCTORS.map(d => `
+    <div class="doc-list-item" onclick="openDoctorChat(${d.id})">
+      <div class="doc-avatar">${d.initials}</div>
+      <div style="flex:1">
+        <div class="doc-name" style="font-size:13px">${d.name}
+          <span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span>
+        </div>
+        <div class="doc-spec" style="font-size:11px">${d.spec}</div>
+      </div>
+      <div style="font-size:11px;color:${d.online?'#16a34a':'var(--text-muted)'}">
+        ${d.online ? 'Online' : 'Offline'}
+      </div>
+    </div>`).join('');
+  setNotifDot();
+}
+
+function handleSearch(val) {
+  const results = document.getElementById('searchResults');
+  if (!val.trim()) { results.style.display = 'none'; return; }
+  const v = val.toLowerCase();
+  const matchDocs = DOCTORS.filter(d => d.name.toLowerCase().includes(v) || d.spec.toLowerCase().includes(v));
+  const matchReels = REELS.filter(r => r.title.toLowerCase().includes(v));
+  let html = '';
+  if (matchDocs.length) {
+    html += '<div style="font-size:11px;font-weight:600;color:var(--blue-600);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Doctors</div>';
+    html += matchDocs.map(d => renderDoctorCard(d)).join('');
+  }
+  if (matchReels.length) {
+    html += '<div style="font-size:11px;font-weight:600;color:var(--blue-600);letter-spacing:.06em;text-transform:uppercase;margin:12px 0 8px">Health reels</div>';
+    html += matchReels.map(r => renderReelCard(r)).join('');
+  }
+  if (!html) html = '<div class="empty-state"><p>No results for "' + val + '"</p></div>';
+  results.innerHTML = html;
+  results.style.display = 'block';
+}
+
+function filterReels(cat, el) {
+  document.querySelectorAll('#reelFilters .lang-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = cat === 'All' ? REELS : REELS.filter(r => r.category === cat);
+  document.getElementById('reelList').innerHTML = filtered.map(r => renderReelCard(r)).join('');
+}
+
+function filterDoctors(spec, el) {
+  document.querySelectorAll('#specFilters .lang-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = spec === 'All' ? DOCTORS : DOCTORS.filter(d => d.spec === spec);
+  document.getElementById('doctorList').innerHTML = filtered.map(d => renderDoctorCard(d)).join('');
+}
+
+function openDoctorChat(docId) {
+  chatDoctor = DOCTORS.find(d => d.id === docId) || DOCTORS[0];
+  document.getElementById('chatDocAvatar').textContent = chatDoctor.initials;
+  document.getElementById('chatDocName').innerHTML = chatDoctor.name + `<span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span>`;
+  document.getElementById('freeCounter').textContent = freeTextsLeft + ' free text' + (freeTextsLeft !== 1 ? 's' : '') + ' left';
+  document.getElementById('chatListView').style.display = 'none';
+  const cv = document.getElementById('chatConversationView');
+  cv.style.display = 'flex';
+  renderChatHistory();
+  showPage('chat');
+}
+
+function backToList() {
+  document.getElementById('chatListView').style.display = 'block';
+  document.getElementById('chatConversationView').style.display = 'none';
+}
+
+function renderChatHistory() {
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = CHAT_HISTORY.map(m => {
+    if (m.role === 'insight') return `<div class="insight-banner"><div class="insight-title">Why this matters</div><div class="insight-text">${m.text}</div></div>`;
+    return `<div class="bubble-wrap ${m.role}"><div class="bubble ${m.role}">${m.text}</div><div class="bubble-time">${m.time}</div></div>`;
+  }).join('');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (freeTextsLeft <= 0) { showToast('Upgrade to ₹5/mo for more texts'); return; }
+  freeTextsLeft--;
+  document.getElementById('freeCounter').textContent = freeTextsLeft + ' free text' + (freeTextsLeft !== 1 ? 's' : '') + ' left';
+  document.getElementById('statTexts').textContent = (3 - freeTextsLeft);
+  CHAT_HISTORY.push({role:'me', text, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
+  input.value = '';
+  renderChatHistory();
+  setTimeout(() => {
+    const replies = [
+      "Thank you for sharing that. Can you tell me more about when the symptoms started?",
+      "Based on your history, I'd suggest scheduling a follow-up. Have you taken your medication today?",
+      "That sounds manageable. Ensure you stay hydrated and rest well. Monitor for 24 hours.",
+      "Please book an appointment so I can examine you properly and review your recent reports.",
+    ];
+    const reply = replies[Math.floor(Math.random() * replies.length)];
+    CHAT_HISTORY.push({role:'them', text: reply, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
+    renderChatHistory();
+  }, 1200);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+}
+
+function startChat() { openDoctorChat(1); }
+
+function fileSelected(input) {
+  if (input.files.length) showToast('File selected: ' + input.files[0].name);
+}
+
+function analyzeReport() {
+  showToast('Analysing report…');
+  setTimeout(() => {
+    document.getElementById('labResult').classList.add('show');
+    document.getElementById('labAiSummary').classList.add('show');
+    document.getElementById('labCta').style.display = 'block';
+    showToast('Analysis complete!');
+  }, 1800);
+}
+
+function dispatchAmbulance() {
+  showToast('Dispatching ambulance… ETA ~8 min');
+  showPage('emergency');
+}
+
+function openFirstAid() { openModal('firstAidModal'); }
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openCallModal(name) {
+  document.getElementById('callDocName').textContent = name;
+  document.getElementById('callDocAvatar').textContent = name.split(' ').filter((_,i)=>i>0).map(w=>w[0]).join('').slice(0,2);
+  openModal('callModal');
+}
+
+function selectLang(el, code, display) {
+  document.querySelectorAll('#langGrid .lang-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('langDisplay').textContent = display;
+  showToast('Language set to ' + el.textContent);
+}
+
+function selectLangModal(el, code, display) {
+  document.querySelectorAll('#langModal .lang-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('langDisplay').textContent = display;
+  showToast('Language set to ' + el.textContent);
+}
+
+function setNotifDot() {
+  const unread = NOTIFICATIONS.filter(n => n.unread).length;
+  const dot = document.getElementById('notifDot');
+  dot.style.display = unread > 0 ? 'block' : 'none';
+}
+
+function markRead(id) {
+  const n = NOTIFICATIONS.find(n => n.id === id);
+  if (n) n.unread = false;
+  document.getElementById('notifList').innerHTML = renderNotifications();
+  setNotifDot();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===== INIT =====
+setGreeting();
+initPages();
+</script>
+</body>
+</html>
