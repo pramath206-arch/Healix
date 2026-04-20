@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healix — Your Health, Verified</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-50:#E6F1FB;--blue-100:#B5D4F4;--blue-200:#85B7EB;--blue-400:#378ADD;
+  --blue-600:#185FA5;--blue-800:#0C447C;--blue-900:#042C53;
+  --teal-50:#E1F5EE;--teal-400:#1D9E75;--teal-600:#0F6E56;--teal-800:#085041;
+  --amber-50:#FAEEDA;--amber-400:#EF9F27;--amber-600:#BA7517;--amber-800:#633806;
+  --red-50:#FCEBEB;--red-400:#E24B4A;--red-600:#A32D2D;--red-800:#791F1F;
+  --green-50:#EAF3DE;--green-400:#639922;--green-600:#3B6D11;--green-800:#27500A;
+  --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-200:#B4B2A9;--gray-400:#888780;
+  --gray-600:#5F5E5A;--gray-800:#444441;
+  --pink-50:#FBEAF0;--pink-600:#993556;--pink-800:#72243E;
+  --purple-50:#F3EEFF;--purple-400:#8B5CF6;--purple-600:#6D28D9;--purple-800:#4C1D95;
+  --bg:#F7FAFF;--surface:#FFFFFF;--border:#D0E4F5;
+  --text:#0C447C;--text-muted:#888780;--text-soft:#5F5E5A;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 1px 4px rgba(24,95,165,.08);--shadow-md:0 4px 16px rgba(24,95,165,.12);
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5}
+button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit}
+a{color:inherit;text-decoration:none}
+
+/* SHELL */
+#app{display:flex;flex-direction:column;min-height:100vh;max-width:430px;margin:0 auto;background:var(--surface);position:relative;box-shadow:0 0 40px rgba(24,95,165,.1)}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-size:20px;font-weight:700;color:var(--blue-600);letter-spacing:-0.5px}
+.logo span{color:var(--teal-400)}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.lang-btn{font-size:12px;color:var(--blue-600);background:var(--blue-50);border:1px solid var(--blue-200);border-radius:20px;padding:3px 10px;cursor:pointer}
+.notif-btn{position:relative;background:none;border:none;padding:2px}
+.notif-btn svg{width:22px;height:22px}
+.notif-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;background:var(--red-400);border-radius:50%;border:2px solid var(--surface)}
+.greeting{font-size:12px;color:var(--text-muted);padding:6px 18px 0}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;padding:8px 0 14px;background:var(--surface);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;border-radius:var(--radius-sm);border:none;background:none;color:var(--text-muted);font-size:10px;transition:all .15s}
+.nav-item.active{color:var(--blue-600)}
+.nav-item svg{width:20px;height:20px}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue-600);margin:0 auto}
+.nav-sos{background:var(--red-400);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin-top:-20px;border:3px solid var(--surface);box-shadow:0 2px 12px rgba(226,75,74,.4)}
+.nav-sos svg{width:22px;height:22px;color:#fff}
+
+/* PAGES */
+.page{display:none;flex:1;overflow-y:auto;padding-bottom:16px}
+.page.active{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--blue-600) 0%,var(--blue-800) 100%);padding:20px 18px 18px;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-30px;right:-40px;width:150px;height:150px;background:rgba(255,255,255,.05);border-radius:50%}
+.hero-label{font-size:11px;letter-spacing:.08em;opacity:.7;text-transform:uppercase;margin-bottom:4px}
+.hero-title{font-size:22px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.hero-sub{font-size:13px;opacity:.8;margin-bottom:14px}
+.search-box{display:flex;align-items:center;gap:10px;background:#fff;border-radius:var(--radius-md);padding:10px 14px}
+.search-box input{flex:1;border:none;outline:none;font-size:14px;color:var(--text-soft);background:transparent}
+.search-box svg{width:18px;height:18px;color:var(--blue-400);flex-shrink:0}
+
+/* CRISIS BANNER */
+.crisis-notice{margin:12px 16px;background:var(--red-50);border:1px solid var(--red-400);border-radius:var(--radius-md);padding:12px 14px;display:none}
+.crisis-notice.visible{display:block}
+.cn-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cn-dot{width:8px;height:8px;border-radius:50%;background:var(--red-400);animation:blink 1.2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.cn-title{font-size:12px;font-weight:600;color:var(--red-800)}
+.cn-body{font-size:11px;color:var(--red-600);line-height:1.5;margin-bottom:8px}
+.cn-link{font-size:11px;color:var(--blue-600);font-weight:500;text-decoration:underline;cursor:pointer}
+
+/* SOS STRIP */
+.sos-strip{margin:14px 16px;background:var(--red-600);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.sos-strip-left .sos-title{font-size:13px;font-weight:600;color:#fff}
+.sos-strip-left .sos-sub{font-size:11px;color:#ffb5b5;margin-top:1px}
+.sos-btn{background:#fff;color:var(--red-600);font-size:12px;font-weight:600;padding:7px 14px;border-radius:var(--radius-sm);border:none;transition:transform .1s}
+.sos-btn:active{transform:scale(.96)}
+
+/* SECTION */
+.section{padding:14px 16px}
+.section-title{font-size:11px;font-weight:600;color:var(--blue-600);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.section-title a{font-size:11px;color:var(--blue-400);font-weight:400;text-transform:none;letter-spacing:0}
+
+/* QUICK GRID */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.quick-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.quick-card:hover{border-color:var(--blue-400);background:var(--blue-50)}
+.quick-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.quick-icon svg{width:20px;height:20px}
+.quick-label{font-size:11px;font-weight:500;color:var(--text)}
+.quick-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+/* DOCTOR CARD */
+.doctor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.doctor-card:hover{border-color:var(--blue-400)}
+.doc-avatar{width:44px;height:44px;border-radius:50%;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--blue-800);flex-shrink:0;border:2px solid var(--blue-100)}
+.doc-info{flex:1}
+.doc-name{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:5px}
+.verified-badge{width:14px;height:14px;background:var(--blue-600);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.verified-badge svg{width:8px;height:8px;color:#fff}
+.doc-spec{font-size:11px;color:var(--text-muted);margin-top:1px}
+.doc-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.trust-pill{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid}
+.trust-gold{background:var(--amber-50);color:var(--amber-800);border-color:var(--amber-400)}
+.trust-silver{background:var(--gray-50);color:var(--gray-800);border-color:var(--gray-400)}
+.trust-verified{background:var(--blue-50);color:var(--blue-800);border-color:var(--blue-200)}
+.trust-independent{background:var(--teal-50);color:var(--teal-800);border-color:var(--teal-400)}
+.online-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;margin-left:auto;flex-shrink:0}
+.online-label{font-size:10px;color:#16a34a;font-weight:500}
+.coi-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:8px;background:var(--green-50);color:var(--green-800);border:1px solid var(--green-400);margin-top:3px}
+.coi-tag.has-coi{background:var(--amber-50);color:var(--amber-800);border-color:var(--amber-400)}
+
+/* REELS */
+.reel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px}
+.reel-thumb{height:160px;display:flex;align-items:center;justify-content:center;position:relative}
+.play-circle{width:44px;height:44px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
+.play-circle:hover{transform:scale(1.1)}
+.play-tri{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:16px solid var(--blue-600);margin-left:3px}
+.reel-duration{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px}
+.reel-body{padding:10px 12px}
+.reel-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.reel-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px}
+.reel-tags{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.reel-stats{display:flex;gap:14px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.reel-stat{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted)}
+.reel-stat svg{width:14px;height:14px}
+
+/* EMERGENCY */
+.em-status-bar{background:var(--red-600);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.em-status-label{font-size:12px;font-weight:600;color:#fff}
+.em-status-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.map-container{margin:12px 16px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border);height:200px;background:var(--blue-50);position:relative}
+.map-svg{width:100%;height:100%}
+.map-overlay-label{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.9);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--blue-800);font-weight:500}
+.em-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.em-card.ambulance{border-color:var(--amber-400)}
+.em-card-left .em-card-name{font-size:13px;font-weight:600;color:var(--text)}
+.em-card-left .em-card-dist{font-size:11px;color:var(--text-muted);margin-top:2px}
+.em-card-left .em-eta{font-size:11px;color:var(--amber-600);font-weight:500;margin-top:2px}
+.btn-call{background:var(--blue-600);color:#fff;font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:none}
+.btn-dispatch{background:var(--amber-50);color:var(--amber-800);font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--amber-400)}
+.remote-help{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px}
+.remote-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.remote-btn{background:var(--blue-50);color:var(--blue-800);font-size:11px;font-weight:500;padding:8px 6px;border-radius:var(--radius-sm);border:1px solid var(--blue-200);text-align:center;cursor:pointer;transition:all .15s}
+.remote-btn:hover{background:var(--blue-100)}
+
+/* CHAT */
+.chat-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.chat-doc-info{flex:1}
+.chat-doc-name{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.chat-doc-status{font-size:11px;color:#16a34a;margin-top:1px}
+.free-counter{display:inline-block;background:var(--blue-50);color:var(--blue-800);font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid var(--blue-200)}
+.chat-messages{padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+.bubble-wrap{display:flex;flex-direction:column}
+.bubble-wrap.me{align-items:flex-end}
+.bubble-wrap.them{align-items:flex-start}
+.bubble{padding:10px 13px;border-radius:14px;max-width:82%;font-size:13px;line-height:1.5}
+.bubble.them{background:var(--blue-50);color:var(--blue-800);border-bottom-left-radius:3px}
+.bubble.me{background:var(--blue-600);color:#fff;border-bottom-right-radius:3px}
+.bubble-time{font-size:10px;color:var(--text-muted);margin-top:3px;padding:0 3px}
+.insight-banner{background:var(--amber-50);border:1px solid var(--amber-400);border-radius:var(--radius-sm);padding:8px 10px;margin:4px 0}
+.insight-title{font-size:10px;font-weight:600;color:var(--amber-800);margin-bottom:2px}
+.insight-text{font-size:11px;color:var(--amber-600);line-height:1.4}
+.chat-input-area{padding:10px 16px 14px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end}
+.chat-input-area textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;font-size:13px;color:var(--text-soft);outline:none;max-height:100px;min-height:42px;transition:border .15s}
+.chat-input-area textarea:focus{border-color:var(--blue-400)}
+.send-btn{width:42px;height:42px;background:var(--blue-600);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn svg{width:18px;height:18px;color:#fff}
+.doc-list-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s}
+.doc-list-item:hover{border-color:var(--blue-400)}
+
+/* AI vs DOCTOR */
+.compare-intro{padding:14px 16px;font-size:13px;color:var(--text-soft);background:var(--blue-50);border-bottom:1px solid var(--border);line-height:1.5}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.compare-card{border-radius:var(--radius-md);padding:12px;border:1px solid}
+.compare-card.ai-card{background:var(--amber-50);border-color:var(--amber-400)}
+.compare-card.doc-card{background:var(--blue-50);border-color:var(--blue-200)}
+.compare-card-title{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ai-card .compare-card-title{color:var(--amber-800)}
+.doc-card .compare-card-title{color:var(--blue-800)}
+.compare-item{font-size:11px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.05);line-height:1.4;display:flex;align-items:flex-start;gap:4px}
+.compare-item:last-of-type{border-bottom:none}
+.compare-item.good{color:var(--green-600)}
+.compare-item.bad{color:var(--red-600)}
+.ci-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ci-dot.good{background:var(--green-400)}
+.ci-dot.bad{background:var(--red-400)}
+.accuracy-section{padding:0 16px}
+.acc-row{margin-bottom:10px}
+.acc-label-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.acc-label-row .name{font-weight:500;color:var(--text)}
+.acc-label-row .score{font-weight:600}
+.acc-track{height:8px;background:var(--gray-50);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.acc-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.verdict-box{margin:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px}
+.verdict-box p{font-size:12px;color:var(--text-soft);line-height:1.6;margin-bottom:10px}
+.cta-btn{width:100%;padding:12px;border-radius:var(--radius-md);background:var(--blue-600);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:background .15s}
+.cta-btn:hover{background:var(--blue-800)}
+
+/* =============================================
+   PRICING / DASHBOARD — REDESIGNED
+   ============================================= */
+
+/* Plan toggle */
+.plan-toggle-wrap{display:flex;align-items:center;gap:8px;padding:14px 16px 0;justify-content:center}
+.plan-toggle{display:flex;background:var(--gray-50);border:1px solid var(--border);border-radius:20px;padding:3px}
+.plan-toggle-btn{font-size:11px;font-weight:600;padding:5px 14px;border-radius:16px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s}
+.plan-toggle-btn.active{background:var(--blue-600);color:#fff}
+.save-badge{font-size:10px;background:var(--green-50);color:var(--green-600);border:1px solid var(--green-400);border-radius:20px;padding:2px 8px;font-weight:600}
+
+/* Pricing cards container */
+.pricing-cards{display:flex;flex-direction:column;gap:12px;padding:12px 16px}
+
+/* Individual pricing card */
+.pricing-card{border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--surface);overflow:hidden;transition:border-color .2s,box-shadow .2s;position:relative}
+.pricing-card.popular{border-color:var(--blue-600);box-shadow:0 4px 20px rgba(24,95,165,.15)}
+.pricing-card.family-plan{border-color:var(--purple-400)}
+
+/* Popular badge */
+.popular-ribbon{position:absolute;top:0;right:16px;background:var(--blue-600);color:#fff;font-size:10px;font-weight:700;padding:3px 12px 5px;border-radius:0 0 10px 10px;letter-spacing:.04em;text-transform:uppercase}
+
+/* Card header */
+.pc-header{padding:16px 16px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.pc-header-left{}
+.pc-plan-name{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.pc-plan-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.pc-price-block{text-align:right;flex-shrink:0}
+.pc-price{font-size:26px;font-weight:800;color:var(--blue-600);line-height:1;letter-spacing:-0.5px}
+.pc-price.free-price{color:var(--green-600)}
+.pc-price.family-price{color:var(--purple-600)}
+.pc-per{font-size:11px;color:var(--text-muted);margin-top:2px}
+.pc-annual-note{font-size:10px;color:var(--text-muted);margin-top:1px;font-style:italic}
+
+/* Card divider */
+.pc-divider{height:1px;background:var(--border);margin:0 16px}
+
+/* Features list */
+.pc-features{padding:12px 16px 14px}
+.pc-feature{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:var(--text-soft);line-height:1.4}
+.pc-feat-icon{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+.pc-feat-icon.check{background:var(--green-50);border:1px solid var(--green-400)}
+.pc-feat-icon.check svg{width:9px;height:9px;color:var(--green-600)}
+.pc-feat-icon.cross{background:var(--red-50);border:1px solid var(--red-400)}
+.pc-feat-icon.cross svg{width:9px;height:9px;color:var(--red-400)}
+.pc-feat-icon.star{background:var(--amber-50);border:1px solid var(--amber-400)}
+.pc-feat-icon.star svg{width:9px;height:9px;color:var(--amber-600)}
+.pc-feat-icon.purple{background:var(--purple-50);border:1px solid var(--purple-400)}
+.pc-feat-icon.purple svg{width:9px;height:9px;color:var(--purple-600)}
+.pc-feat-highlight{font-weight:600;color:var(--text)}
+.pc-feat-note{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+/* CTA button inside card */
+.pc-cta{margin:0 16px 16px;padding:11px;border-radius:var(--radius-md);font-size:13px;font-weight:600;border:none;cursor:pointer;width:calc(100% - 32px);text-align:center;transition:all .15s}
+.pc-cta.free-cta{background:var(--gray-50);color:var(--gray-800);border:1px solid var(--border)}
+.pc-cta.free-cta:hover{background:var(--gray-100)}
+.pc-cta.standard-cta{background:var(--blue-600);color:#fff}
+.pc-cta.standard-cta:hover{background:var(--blue-800)}
+.pc-cta.family-cta{background:var(--purple-600);color:#fff}
+.pc-cta.family-cta:hover{background:var(--purple-800)}
+.pc-cta.current-cta{background:var(--green-50);color:var(--green-800);border:1px solid var(--green-400);cursor:default}
+
+/* Free tier ad badge */
+.ad-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;background:var(--amber-50);color:var(--amber-800);border:1px solid var(--amber-400);border-radius:20px;padding:2px 8px;font-weight:500}
+
+/* Trial banner */
+.trial-banner{background:var(--teal-50);border-top:1px solid var(--teal-400);padding:8px 16px;font-size:11px;color:var(--teal-700);text-align:center;font-weight:500}
+
+/* Current plan indicator in dashboard */
+.current-plan-bar{margin:14px 16px 0;background:var(--blue-50);border:1px solid var(--blue-200);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;gap:12px}
+.cpb-icon{width:36px;height:36px;background:var(--blue-600);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cpb-icon svg{width:18px;height:18px;color:#fff}
+.cpb-info{flex:1}
+.cpb-plan{font-size:13px;font-weight:700;color:var(--blue-800)}
+.cpb-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.cpb-upgrade{font-size:11px;font-weight:600;color:var(--blue-600);background:var(--surface);border:1px solid var(--blue-200);padding:5px 10px;border-radius:var(--radius-sm)}
+
+/* Usage meter */
+.usage-section{padding:12px 16px}
+.usage-title{font-size:11px;font-weight:600;color:var(--blue-600);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.usage-meter{margin-bottom:10px}
+.usage-label-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.usage-label{color:var(--text-soft);font-weight:500}
+.usage-val{color:var(--text-muted)}
+.usage-track{height:6px;background:var(--gray-50);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.usage-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 12px}
+.stat-num{font-size:26px;font-weight:700;color:var(--blue-600)}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:2px}
+.stat-delta{font-size:10px;color:var(--green-600);margin-top:4px;font-weight:500}
+.lang-section{padding:0 16px 14px}
+.lang-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.lang-pill{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--surface);color:var(--text-muted)}
+.lang-pill.active{background:var(--blue-600);color:#fff;border-color:var(--blue-600)}
+.health-timeline{display:flex;flex-direction:column}
+.timeline-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.timeline-item:last-child{border-bottom:none}
+.timeline-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-title{font-size:12px;font-weight:600;color:var(--text)}
+.tl-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.tl-date{font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* LAB REPORT */
+.upload-area{margin:14px 16px;border:2px dashed var(--blue-200);border-radius:var(--radius-md);padding:32px 16px;text-align:center;cursor:pointer;transition:all .2s;background:var(--blue-50)}
+.upload-area:hover{border-color:var(--blue-400);background:var(--blue-100)}
+.upload-area svg{width:40px;height:40px;color:var(--blue-400);margin:0 auto 10px}
+.upload-btn{background:var(--blue-600);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 24px;font-size:13px;font-weight:500;margin-top:12px}
+.lab-result{margin:0 16px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;display:none}
+.lab-result.show{display:block}
+.lab-result-header{background:var(--blue-600);padding:12px 14px;color:#fff;font-size:13px;font-weight:600}
+.lab-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px}
+.lab-row:last-child{border-bottom:none}
+.lab-param{color:var(--text-soft)}
+.lab-value{font-weight:600;color:var(--text)}
+.lab-status{font-size:10px;padding:2px 8px;border-radius:20px}
+.lab-normal{background:var(--green-50);color:var(--green-600);border:1px solid var(--green-400)}
+.lab-high{background:var(--red-50);color:var(--red-600);border:1px solid var(--red-400)}
+.lab-low{background:var(--amber-50);color:var(--amber-600);border:1px solid var(--amber-400)}
+.lab-ai-summary{margin:0 16px 14px;background:var(--amber-50);border:1px solid var(--amber-400);border-radius:var(--radius-md);padding:13px 14px;display:none}
+.lab-ai-summary.show{display:block}
+.lab-ai-title{font-size:11px;font-weight:600;color:var(--amber-800);margin-bottom:6px}
+
+/* NOTIFICATIONS */
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:background .12s}
+.notif-item:hover{background:var(--blue-50)}
+.notif-item.unread{background:var(--blue-50)}
+.notif-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notif-icon svg{width:18px;height:18px}
+.notif-title{font-size:13px;font-weight:600;color:var(--text)}
+.notif-body{font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.4}
+.notif-time{font-size:10px;color:var(--text-muted);margin-top:4px}
+.unread-dot{width:8px;height:8px;background:var(--blue-600);border-radius:50%;margin-top:6px;flex-shrink:0}
+
+/* TRANSPARENCY PAGE */
+.trans-hero{background:linear-gradient(135deg,var(--teal-600) 0%,var(--teal-800) 100%);padding:20px 18px 18px;color:#fff}
+.trans-hero-label{font-size:11px;letter-spacing:.08em;opacity:.7;text-transform:uppercase;margin-bottom:4px}
+.trans-hero-title{font-size:20px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.trans-hero-sub{font-size:13px;opacity:.8}
+.pledge-card{margin:14px 16px;background:var(--teal-50);border:2px solid var(--teal-400);border-radius:var(--radius-md);padding:14px}
+.pledge-title{font-size:13px;font-weight:700;color:var(--teal-800);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.pledge-body{font-size:12px;color:var(--teal-600);line-height:1.6;margin-bottom:10px}
+.pledge-signed{font-size:11px;color:var(--teal-600);font-style:italic;border-top:1px solid var(--teal-400);padding-top:8px;margin-top:4px}
+.funding-table{margin:0 16px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.funding-header{background:var(--blue-600);padding:10px 14px;color:#fff;font-size:12px;font-weight:600}
+.funding-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px}
+.funding-row:last-child{border-bottom:none}
+.funding-source{color:var(--text-soft)}
+.funding-amount{font-weight:600;color:var(--text)}
+.funding-type{font-size:10px;padding:2px 7px;border-radius:10px}
+.ft-member{background:var(--blue-50);color:var(--blue-800);border:1px solid var(--blue-200)}
+.ft-grant{background:var(--teal-50);color:var(--teal-800);border:1px solid var(--teal-400)}
+.ft-pharma-no{background:var(--red-50);color:var(--red-800);border:1px solid var(--red-400)}
+.myth-section{margin:0 16px 14px}
+.myth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:10px;overflow:hidden}
+.myth-claim{padding:10px 14px;background:var(--red-50);border-bottom:1px solid var(--red-400)}
+.myth-claim-label{font-size:10px;font-weight:600;color:var(--red-600);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.myth-claim-text{font-size:12px;color:var(--red-800);line-height:1.4}
+.myth-fact{padding:10px 14px;background:var(--green-50)}
+.myth-fact-label{font-size:10px;font-weight:600;color:var(--green-600);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.myth-fact-text{font-size:12px;color:var(--green-800);line-height:1.4}
+.advisor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+.advisor-avatar{width:40px;height:40px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--teal-800);flex-shrink:0;border:2px solid var(--teal-400)}
+.advisor-name{font-size:13px;font-weight:600;color:var(--text)}
+.advisor-role{font-size:11px;color:var(--text-muted);margin-top:1px}
+.advisor-note{font-size:11px;color:var(--teal-600);margin-top:4px;line-height:1.4}
+.audit-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px}
+.audit-row:last-child{border-bottom:none}
+.audit-label{color:var(--text-soft)}
+.audit-val{font-weight:500;color:var(--text)}
+.audit-status{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--green-50);color:var(--green-800);border:1px solid var(--green-400)}
+.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 8px;border-radius:10px;background:var(--green-50);color:var(--green-600);border:1px solid var(--green-400)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green-400);animation:pulse 1.5s infinite}
+
+/* MEET EXPERTS */
+.expert-hero{background:linear-gradient(135deg,var(--blue-800) 0%,var(--blue-900) 100%);padding:20px 18px 18px;color:#fff}
+.expert-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin:0 16px 14px;overflow:hidden}
+.expert-banner{height:90px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;letter-spacing:-1px;color:#fff}
+.expert-body{padding:14px}
+.expert-name{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.expert-spec{font-size:12px;color:var(--text-muted);margin-top:2px}
+.expert-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.expert-stat{text-align:center;background:var(--blue-50);border-radius:var(--radius-sm);padding:8px 4px}
+.expert-stat-num{font-size:16px;font-weight:700;color:var(--blue-600)}
+.expert-stat-label{font-size:10px;color:var(--text-muted);margin-top:1px}
+.expert-quote{font-size:12px;color:var(--text-soft);line-height:1.6;font-style:italic;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-sm);margin-top:10px;border-left:3px solid var(--blue-400)}
+.expert-coi{font-size:11px;color:var(--green-600);margin-top:8px;display:flex;align-items:center;gap:4px}
+
+/* GENERIC */
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin:0 16px 10px}
+.info-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.info-card-body{font-size:12px;color:var(--text-soft);line-height:1.6}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;max-width:430px;margin:0 auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-xl) var(--radius-xl) 0 0;padding:20px 18px 32px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:14px}
+.modal-close{float:right;background:none;border:none;font-size:20px;color:var(--text-muted);cursor:pointer;margin-top:-4px}
+.modal-form label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px;margin-top:12px}
+.modal-form input,.modal-form select,.modal-form textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text);outline:none;transition:border .15s}
+.modal-btn{width:100%;padding:13px;border-radius:var(--radius-md);background:var(--blue-600);color:#fff;font-size:14px;font-weight:600;border:none;margin-top:16px;cursor:pointer}
+.modal-btn.secondary{background:var(--blue-50);color:var(--blue-800);border:1px solid var(--blue-200);margin-top:8px}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--blue-800);color:#fff;font-size:13px;padding:10px 20px;border-radius:var(--radius-md);opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* UTILITIES */
+.divider{height:1px;background:var(--border);margin:4px 0}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.page-header{padding:14px 16px 0;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--blue-600)}
+
+@media(min-width:430px){#app{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">Heal<span>ix</span></div>
+    <div class="topbar-actions">
+      <div id="langDisplay" class="lang-btn" onclick="openModal('langModal')">EN</div>
+      <button class="notif-btn" onclick="showPage('notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot" id="notifDot"></span>
+      </button>
+    </div>
+  </div>
+  <div class="greeting" id="greetingBar">Good morning, Pramath</div>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-label">Healix — trusted healthcare</div>
+      <div class="hero-title">Your health,<br>verified.</div>
+      <div class="hero-sub">Doctors · AI-assisted · Emergency ready</div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="homeSearch" placeholder="Search doctors, symptoms, medicines…" oninput="handleSearch(this.value)">
+      </div>
+    </div>
+
+    <div class="crisis-notice" id="crisisNotice">
+      <div class="cn-top"><div class="cn-dot"></div><div class="cn-title">A message from Healix</div></div>
+      <div class="cn-body">You may have seen claims about Healix online. We have published a full financial disclosure and independent audit. Every rupee of our funding is public. We have zero pharmaceutical sponsorship.</div>
+      <span class="cn-link" onclick="showPage('transparency')">Read our full transparency report →</span>
+    </div>
+
+    <div id="searchResults" style="display:none;padding:10px 16px"></div>
+
+    <div class="sos-strip">
+      <div class="sos-strip-left">
+        <div class="sos-title">Emergency nearby?</div>
+        <div class="sos-sub">Ambulance · medicine · doctor locator</div>
+      </div>
+      <button class="sos-btn" onclick="showPage('emergency')">SOS →</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Quick access</div>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="showPage('doctors')">
+          <div class="quick-icon" style="background:var(--blue-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="quick-label">Find doctor</div><div class="quick-sub">Near you</div>
+        </div>
+        <div class="quick-card" onclick="showPage('lab')">
+          <div class="quick-icon" style="background:var(--amber-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l3 3 3-3V3"/><path d="m5 15-3 6h20l-3-6"/></svg></div>
+          <div class="quick-label">Lab report</div><div class="quick-sub">AI reader</div>
+        </div>
+        <div class="quick-card" onclick="showPage('compare')">
+          <div class="quick-icon" style="background:var(--teal-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg></div>
+          <div class="quick-label">Ask AI</div><div class="quick-sub">Free 3/mo</div>
+        </div>
+        <div class="quick-card" onclick="showPage('transparency')">
+          <div class="quick-icon" style="background:var(--teal-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="quick-label">Transparency</div><div class="quick-sub">Our pledge</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Verified doctors online <a href="#" onclick="showPage('doctors');return false">See all</a></div>
+      <div id="homeDoctorList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Health reels <a href="#" onclick="showPage('reels');return false">See all</a></div>
+      <div id="homeReelPreview"></div>
+    </div>
+  </div>
+
+  <!-- REELS PAGE -->
+  <div class="page" id="page-reels">
+    <div class="page-header" style="margin-bottom:10px">Health reels — verified content</div>
+    <div style="padding:0 16px;font-size:12px;color:var(--text-muted);margin-bottom:12px">Every video reviewed by NMC-verified doctors. No misinformation.</div>
+    <div style="padding:0 16px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="reelFilters"></div>
+    <div style="padding:0 16px" id="reelList"></div>
+  </div>
+
+  <!-- EMERGENCY PAGE -->
+  <div class="page" id="page-emergency">
+    <div class="em-status-bar">
+      <div class="em-status-label">Emergency mode — Bengaluru, KA</div>
+      <div style="display:flex;align-items:center;gap:6px"><div class="em-status-dot"></div><span style="font-size:11px;color:#4ade80">Live</span></div>
+    </div>
+    <div class="map-container">
+      <svg class="map-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#B5D4F4" stroke-width="0.5"/></pattern></defs>
+        <rect width="400" height="200" fill="#EBF4FF"/><rect width="400" height="200" fill="url(#grid)"/>
+        <line x1="0" y1="100" x2="400" y2="100" stroke="#C8DCEF" stroke-width="3"/>
+        <line x1="200" y1="0" x2="200" y2="200" stroke="#C8DCEF" stroke-width="3"/>
+        <line x1="0" y1="50" x2="400" y2="150" stroke="#D8E8F5" stroke-width="2"/>
+        <circle cx="200" cy="100" r="10" fill="#E24B4A" opacity="0.3"/>
+        <circle cx="200" cy="100" r="6" fill="#E24B4A"/><circle cx="200" cy="100" r="3" fill="#fff"/>
+        <text x="208" y="92" font-size="9" fill="#A32D2D" font-weight="600">You</text>
+        <circle cx="130" cy="65" r="7" fill="#185FA5"/><circle cx="130" cy="65" r="3" fill="#fff"/>
+        <text x="138" y="61" font-size="9" fill="#0C447C">Dr. Sharma</text>
+        <line x1="200" y1="100" x2="130" y2="65" stroke="#185FA5" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="155" y="77" font-size="8" fill="#185FA5">1.2 km</text>
+        <circle cx="280" cy="130" r="7" fill="#185FA5"/><circle cx="280" cy="130" r="3" fill="#fff"/>
+        <text x="288" y="126" font-size="9" fill="#0C447C">Dr. Mehta</text>
+        <line x1="200" y1="100" x2="280" y2="130" stroke="#185FA5" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="232" y="125" font-size="8" fill="#185FA5">2.1 km</text>
+        <circle cx="310" cy="55" r="7" fill="#185FA5"/><circle cx="310" cy="55" r="3" fill="#fff"/>
+        <text x="318" y="51" font-size="9" fill="#0C447C">Dr. Rao</text>
+        <rect x="87" y="150" width="14" height="10" rx="2" fill="#EF9F27"/>
+        <text x="82" y="143" font-size="9" fill="#633806">Ambulance</text>
+        <line x1="200" y1="100" x2="94" y2="155" stroke="#EF9F27" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="118" y="145" font-size="8" fill="#854F0B">2.8 km</text>
+        <circle cx="14" cy="185" r="4" fill="#E24B4A"/><text x="20" y="188" font-size="9" fill="#5F5E5A">You</text>
+        <circle cx="48" cy="185" r="4" fill="#185FA5"/><text x="54" y="188" font-size="9" fill="#5F5E5A">Doctor</text>
+        <rect x="90" y="181" width="8" height="6" rx="1" fill="#EF9F27"/><text x="100" y="188" font-size="9" fill="#5F5E5A">Ambulance</text>
+      </svg>
+      <div class="map-overlay-label">Live · Bengaluru</div>
+    </div>
+    <div style="padding:0 16px">
+      <div class="section-title">Nearby doctors</div>
+      <div class="em-card"><div class="em-card-left"><div class="em-card-name">Dr. Rajesh Sharma</div><div class="em-card-dist">Cardiologist · 1.2 km away</div><div class="em-eta" style="color:var(--green-600)">Available now</div></div><button class="btn-call" onclick="openCallModal('Dr. Rajesh Sharma')">Call now</button></div>
+      <div class="em-card"><div class="em-card-left"><div class="em-card-name">Dr. Priya Mehta</div><div class="em-card-dist">General physician · 2.1 km away</div><div class="em-eta" style="color:var(--green-600)">Available now</div></div><button class="btn-call" onclick="openCallModal('Dr. Priya Mehta')">Call now</button></div>
+      <div class="em-card"><div class="em-card-left"><div class="em-card-name">Dr. Sneha Rao</div><div class="em-card-dist">Paediatrician · 3.4 km away</div><div class="em-eta">ETA ~10 min</div></div><button class="btn-call" onclick="openCallModal('Dr. Sneha Rao')">Call now</button></div>
+      <div class="section-title" style="margin-top:14px">Ambulance dispatch</div>
+      <div class="em-card ambulance"><div class="em-card-left"><div class="em-card-name">Ambulance 108 — Government</div><div class="em-card-dist">2.8 km away · Free of cost</div><div class="em-eta">ETA ~8 min</div></div><button class="btn-dispatch" onclick="showToast('Dispatching ambulance… ETA ~8 min')">Dispatch</button></div>
+      <div class="em-card ambulance"><div class="em-card-left"><div class="em-card-name">Medivac Private Ambulance</div><div class="em-card-dist">1.9 km away · ₹400–800</div><div class="em-eta">ETA ~5 min</div></div><button class="btn-dispatch" onclick="showToast('Dispatching Medivac…')">Dispatch</button></div>
+      <div class="section-title" style="margin-top:14px">No doctors nearby? Get remote help</div>
+      <div class="remote-help"><div class="remote-buttons">
+        <div class="remote-btn" onclick="showToast('Connecting to video consult…')">Video consult</div>
+        <div class="remote-btn" onclick="showToast('Opening medicine delivery…')">Medicine delivery</div>
+        <div class="remote-btn" onclick="openModal('firstAidModal')">First aid guide</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- DOCTORS PAGE -->
+  <div class="page" id="page-doctors">
+    <div style="padding:10px 16px">
+      <div class="search-box" style="border:1px solid var(--border);margin-bottom:12px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px;color:var(--text-muted)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search by name or specialty…" style="flex:1;border:none;outline:none;font-size:13px;color:var(--text-soft)">
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="specFilters"></div>
+      <div id="doctorList"></div>
+    </div>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div class="page" id="page-chat">
+    <div id="chatListView">
+      <div style="padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--blue-600);margin-bottom:4px">Your doctors</div>
+      <div id="chatDoctorList"></div>
+    </div>
+    <div id="chatConversationView" style="display:none;flex-direction:column">
+      <div class="chat-header">
+        <button onclick="backToList()" style="background:none;border:none;padding:4px;margin-right:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+        <div class="doc-avatar" id="chatDocAvatar">DR</div>
+        <div class="chat-doc-info">
+          <div class="chat-doc-name" id="chatDocName">Dr. Rajesh Sharma<span class="verified-badge" style="margin-left:4px"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div>
+          <div class="chat-doc-status">Online now</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px"><span class="free-counter" id="freeCounter">3 free texts left</span></div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-area">
+        <textarea id="chatInput" placeholder="Type a message…" rows="1" onkeydown="handleChatKey(event)"></textarea>
+        <button class="send-btn" onclick="sendChatMessage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI VS DOCTOR PAGE -->
+  <div class="page" id="page-compare">
+    <div class="compare-intro">Same symptom: <strong>"I have chest tightness and breathlessness."</strong><br>See why a real doctor gives a better answer than AI.</div>
+    <div class="compare-grid">
+      <div class="compare-card ai-card">
+        <div class="compare-card-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>AI response</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>No patient history</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>Generic: "stress or acidity"</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>No dosage personalisation</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>Cannot order tests</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>No prescription rights</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Available 24/7</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Instant response</div>
+      </div>
+      <div class="compare-card doc-card">
+        <div class="compare-card-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Your doctor</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Knows your BP history</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Advised ECG based on past</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Correct personalised dosage</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Can refer specialists</div>
+        <div class="compare-item good"><div class="ci-dot good"></div>Can prescribe medicine</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>Needs appointment</div>
+        <div class="compare-item bad"><div class="ci-dot bad"></div>May not be 24/7</div>
+      </div>
+    </div>
+    <div class="accuracy-section">
+      <div class="section-title">Accuracy comparison</div>
+      <div class="acc-row"><div class="acc-label-row"><span class="name">AI (generalised)</span><span class="score" style="color:var(--amber-600)">58%</span></div><div class="acc-track"><div class="acc-fill" style="width:58%;background:var(--amber-400)"></div></div></div>
+      <div class="acc-row"><div class="acc-label-row"><span class="name">Verified Doctor</span><span class="score" style="color:var(--blue-600)">94%</span></div><div class="acc-track"><div class="acc-fill" style="width:94%;background:var(--blue-600)"></div></div></div>
+      <div class="acc-row"><div class="acc-label-row"><span class="name">Doctor + AI together</span><span class="score" style="color:var(--teal-600)">97%</span></div><div class="acc-track"><div class="acc-fill" style="width:97%;background:var(--teal-400)"></div></div></div>
+    </div>
+    <div class="verdict-box">
+      <p>AI gives <strong>generalised answers</strong> — it doesn't know your allergies, past diagnoses, or current medications. A verified doctor on Healix knows your complete history and gives the right dosage, the right tests, and the right referrals.</p>
+      <p style="margin-bottom:0">Use AI on Healix to understand your symptoms. Then consult a real doctor for your treatment.</p>
+      <button class="cta-btn" style="margin-top:12px" onclick="showPage('doctors')">Book a real doctor →</button>
+    </div>
+  </div>
+
+  <!-- ===========================
+       DASHBOARD / PROFILE PAGE
+       =========================== -->
+  <div class="page" id="page-dashboard">
+
+    <!-- Current plan bar -->
+    <div class="current-plan-bar">
+      <div class="cpb-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="cpb-info">
+        <div class="cpb-plan">Free plan — active</div>
+        <div class="cpb-sub">3 doctor Q&As/mo · Basic feed · Ads shown</div>
+      </div>
+      <button class="cpb-upgrade" onclick="showPricingTab()">Upgrade →</button>
+    </div>
+
+    <!-- Usage meters -->
+    <div class="usage-section">
+      <div class="usage-title">This month's usage</div>
+      <div class="usage-meter">
+        <div class="usage-label-row"><span class="usage-label">Doctor Q&As used</span><span class="usage-val">3 / 3</span></div>
+        <div class="usage-track"><div class="usage-fill" style="width:100%;background:var(--red-400)"></div></div>
+      </div>
+      <div class="usage-meter">
+        <div class="usage-label-row"><span class="usage-label">AI questions asked</span><span class="usage-val">12 / unlimited</span></div>
+        <div class="usage-track"><div class="usage-fill" style="width:60%;background:var(--blue-400)"></div></div>
+      </div>
+      <div class="usage-meter">
+        <div class="usage-label-row"><span class="usage-label">Lab reports scanned</span><span class="usage-val">2 / unlimited</span></div>
+        <div class="usage-track"><div class="usage-fill" style="width:40%;background:var(--teal-400)"></div></div>
+      </div>
+    </div>
+
+    <!-- Tabs: Profile | Plans -->
+    <div style="display:flex;gap:0;padding:0 16px;border-bottom:2px solid var(--border);margin-bottom:0">
+      <button id="tab-profile" onclick="switchDashTab('profile')" style="flex:1;padding:10px 0;font-size:12px;font-weight:600;color:var(--blue-600);border:none;background:none;border-bottom:2px solid var(--blue-600);margin-bottom:-2px;cursor:pointer">My Profile</button>
+      <button id="tab-plans" onclick="switchDashTab('plans')" style="flex:1;padding:10px 0;font-size:12px;font-weight:600;color:var(--text-muted);border:none;background:none;cursor:pointer">Plans &amp; Pricing</button>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div id="dash-profile-tab">
+      <div class="stats-grid" style="padding-top:14px">
+        <div class="stat-card"><div class="stat-num" id="statTexts">3</div><div class="stat-label">Doctor Q&As used</div><div class="stat-delta" style="color:var(--red-600)">Limit reached · Upgrade</div></div>
+        <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">AI questions asked</div><div class="stat-delta">Unlimited always</div></div>
+        <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Lab reports scanned</div><div class="stat-delta">Last: Apr 14</div></div>
+        <div class="stat-card"><div class="stat-num">1</div><div class="stat-label">Appointments booked</div><div class="stat-delta">Next: Apr 22</div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Language preference</div>
+        <div class="lang-grid" id="langGrid">
+          <div class="lang-pill active" onclick="selectLang(this,'en','EN')">English</div>
+          <div class="lang-pill" onclick="selectLang(this,'hi','हि')">हिंदी</div>
+          <div class="lang-pill" onclick="selectLang(this,'te','తె')">తెలుగు</div>
+          <div class="lang-pill" onclick="selectLang(this,'ta','த')">தமிழ்</div>
+          <div class="lang-pill" onclick="selectLang(this,'mr','म')">मराठी</div>
+          <div class="lang-pill" onclick="selectLang(this,'kn','ಕ')">ಕನ್ನಡ</div>
+          <div class="lang-pill" onclick="selectLang(this,'bn','ব')">বাংলা</div>
+          <div class="lang-pill" onclick="selectLang(this,'gu','ગ')">ગુજરાતી</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Health timeline</div>
+        <div class="health-timeline">
+          <div class="timeline-item"><div class="timeline-dot" style="background:var(--blue-600)"></div><div><div class="tl-title">ECG report scanned</div><div class="tl-sub">AI analysis: Normal sinus rhythm</div><div class="tl-date">Apr 14, 2026</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot" style="background:var(--green-400)"></div><div><div class="tl-title">Chat with Dr. Rajesh Sharma</div><div class="tl-sub">BP medication consultation</div><div class="tl-date">Apr 10, 2026</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot" style="background:var(--amber-400)"></div><div><div class="tl-title">Appointment booked</div><div class="tl-sub">Dr. Sharma — Apr 22, 11:00 AM</div><div class="tl-date">Apr 10, 2026</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot" style="background:var(--teal-400)"></div><div><div class="tl-title">Blood test uploaded</div><div class="tl-sub">Haemoglobin: Normal · Glucose: Slightly high</div><div class="tl-date">Mar 28, 2026</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANS TAB -->
+    <div id="dash-plans-tab" style="display:none">
+
+      <!-- Billing toggle -->
+      <div class="plan-toggle-wrap">
+        <div class="plan-toggle">
+          <button class="plan-toggle-btn active" id="billingMonthly" onclick="setBilling('monthly')">Monthly</button>
+          <button class="plan-toggle-btn" id="billingAnnual" onclick="setBilling('annual')">Annual</button>
+        </div>
+        <span class="save-badge" id="saveBadge" style="display:none">Save 20%</span>
+      </div>
+
+      <div class="pricing-cards">
+
+        <!-- FREE PLAN -->
+        <div class="pricing-card" id="card-free">
+          <div class="pc-header">
+            <div class="pc-header-left">
+              <div class="pc-plan-name">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-600)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+                Free
+              </div>
+              <div class="pc-plan-sub">Forever free · No credit card</div>
+            </div>
+            <div class="pc-price-block">
+              <div class="pc-price free-price">₹0</div>
+              <div class="pc-per">forever</div>
+            </div>
+          </div>
+          <div class="pc-divider"></div>
+          <div class="pc-features">
+            <div class="pc-feat-note" style="padding:6px 0 8px;font-size:11px;color:var(--text-muted)">What's included:</div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">3 doctor Q&As / month</span> — always included</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Basic health feed</span></div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Emergency SOS</span> — always free, no plan needed</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">ClaimCheck (limited)</span> — 5 checks/month</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon cross"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></div>
+              <div style="color:var(--text-muted)">Ads shown in feed <span class="ad-badge"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg> Ad supported</span></div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon cross"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/></svg></div>
+              <div style="color:var(--text-muted)">No Myth Buster access</div>
+            </div>
+          </div>
+          <button class="pc-cta current-cta">✓ Your current plan</button>
+        </div>
+
+        <!-- STANDARD PLAN -->
+        <div class="pricing-card popular" id="card-standard">
+          <div class="popular-ribbon">Most popular</div>
+          <div class="pc-header" style="padding-top:22px">
+            <div class="pc-header-left">
+              <div class="pc-plan-name">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Standard
+              </div>
+              <div class="pc-plan-sub">1 month free trial, then</div>
+            </div>
+            <div class="pc-price-block">
+              <div class="pc-price" id="standardPrice">₹49</div>
+              <div class="pc-per" id="standardPer">/month</div>
+              <div class="pc-annual-note" id="standardAnnualNote" style="display:none">billed ₹470/yr</div>
+            </div>
+          </div>
+          <div class="pc-divider"></div>
+          <div class="pc-features">
+            <div class="pc-feat-note" style="padding:6px 0 8px;font-size:11px;color:var(--text-muted)">Everything in Free, plus:</div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">No ads</span> — completely ad-free experience</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Unlimited doctor Q&As</span></div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Full ClaimCheck</span> — unlimited fact-checks</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon star"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 1l1.24 2.51L9 3.76 7 5.71l.47 2.73L5 7.25 2.53 8.44 3 5.71 1 3.76l2.76-.25z"/></svg></div>
+              <div><span class="pc-feat-highlight">Myth Buster access</span> — debunk viral health claims</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Priority doctor answers</span></div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Unlimited AI health questions</span></div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon check"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Lab report AI reader</span> — unlimited scans</div>
+            </div>
+          </div>
+          <div class="trial-banner">🎉 1 month free trial — no credit card required</div>
+          <div style="height:12px"></div>
+          <button class="pc-cta standard-cta" onclick="showToast('Starting your free trial…')">Start free trial</button>
+        </div>
+
+        <!-- FAMILY PLAN -->
+        <div class="pricing-card family-plan" id="card-family">
+          <div class="pc-header">
+            <div class="pc-header-left">
+              <div class="pc-plan-name" style="color:var(--purple-800)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--purple-600)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Family
+              </div>
+              <div class="pc-plan-sub">Up to 5 members</div>
+            </div>
+            <div class="pc-price-block">
+              <div class="pc-price family-price" id="familyPrice">₹89</div>
+              <div class="pc-per" id="familyPer">/month</div>
+              <div class="pc-annual-note" id="familyAnnualNote" style="display:none">billed ₹854/yr</div>
+            </div>
+          </div>
+          <div style="margin:0 16px 10px;background:var(--purple-50);border:1px solid var(--purple-400);border-radius:var(--radius-sm);padding:8px 12px">
+            <div style="font-size:11px;font-weight:600;color:var(--purple-800);margin-bottom:2px">Best value for families</div>
+            <div style="font-size:11px;color:var(--purple-600)">Just ₹17.80/person — covers your whole household</div>
+          </div>
+          <div class="pc-divider"></div>
+          <div class="pc-features">
+            <div class="pc-feat-note" style="padding:6px 0 8px;font-size:11px;color:var(--text-muted)">Everything in Standard, plus:</div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon purple"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Up to 5 family members</span> — one subscription</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon purple"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Individual health profiles</span> for each member</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon purple"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Senior-friendly UI</span> — larger text, simplified navigation</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon purple"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Priority answers</span> — jump the queue every time</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon purple"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Shared medication reminders</span> for the whole family</div>
+            </div>
+            <div class="pc-feature">
+              <div class="pc-feat-icon purple"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></div>
+              <div><span class="pc-feat-highlight">Family health dashboard</span> — view everyone at a glance</div>
+            </div>
+          </div>
+          <button class="pc-cta family-cta" onclick="showToast('Opening family plan signup…')">Choose Family plan</button>
+        </div>
+
+        <!-- Comparison note -->
+        <div style="background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--radius-md);padding:12px 14px;font-size:11px;color:var(--text-soft);line-height:1.6">
+          <strong style="color:var(--blue-800)">Emergency SOS is always free</strong> — regardless of your plan. No subscription is ever required to access ambulance dispatch or emergency doctor connection.
+          <br><br>
+          <span style="color:var(--text-muted)">All plans include: NMC-verified doctors · zero pharma sponsorship · independent trust scores · multi-language support</span>
+        </div>
+      </div>
+    </div>
+    <!-- end plans tab -->
+
+  </div>
+  <!-- end dashboard page -->
+
+  <!-- LAB REPORT PAGE -->
+  <div class="page" id="page-lab">
+    <div style="padding:12px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-bottom:1px solid var(--border)">Upload your lab report PDF or image. Our AI will explain every result in plain language and flag abnormal values.</div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <strong style="color:var(--blue-600);font-size:14px;display:block;margin-bottom:6px">Upload lab report</strong>
+      <p style="font-size:13px;color:var(--text-muted)">PDF, JPG, PNG supported<br>Your data is private and secure</p>
+      <button class="upload-btn" onclick="event.stopPropagation();analyzeReport()">Analyse report</button>
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="showToast('File selected: '+this.files[0]?.name)">
+    </div>
+    <div class="lab-ai-summary" id="labAiSummary">
+      <div class="lab-ai-title">AI explanation</div>
+      <p style="font-size:12px;color:var(--amber-800);line-height:1.6">Your haemoglobin is within normal range — good news. Your fasting glucose is slightly elevated at 112 mg/dL (pre-diabetic range). Consider reducing sugary food intake and consult a doctor if it remains high. Your thyroid (TSH) is perfectly normal. Vitamin D is low — consider a supplement after consulting your doctor.</p>
+    </div>
+    <div class="lab-result" id="labResult">
+      <div class="lab-result-header">Lab report analysis — Apr 14, 2026</div>
+      <div class="lab-row"><span class="lab-param">Haemoglobin</span><span class="lab-value">13.8 g/dL</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Fasting Glucose</span><span class="lab-value">112 mg/dL</span><span class="lab-status lab-high">High</span></div>
+      <div class="lab-row"><span class="lab-param">TSH (Thyroid)</span><span class="lab-value">2.4 mIU/L</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Total Cholesterol</span><span class="lab-value">198 mg/dL</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Vitamin D</span><span class="lab-value">18 ng/mL</span><span class="lab-status lab-low">Low</span></div>
+      <div class="lab-row"><span class="lab-param">WBC Count</span><span class="lab-value">7,200 /µL</span><span class="lab-status lab-normal">Normal</span></div>
+      <div class="lab-row"><span class="lab-param">Platelets</span><span class="lab-value">2.8 L/µL</span><span class="lab-status lab-normal">Normal</span></div>
+    </div>
+    <div style="padding:0 16px 16px;display:none" id="labCta"><button class="cta-btn" onclick="showPage('doctors')">Discuss results with a doctor →</button></div>
+  </div>
+
+  <!-- NOTIFICATIONS PAGE -->
+  <div class="page" id="page-notifications">
+    <div style="padding:12px 16px 8px;font-size:16px;font-weight:600;color:var(--text)">Notifications</div>
+    <div id="notifList"></div>
+  </div>
+
+  <!-- TRANSPARENCY PAGE -->
+  <div class="page" id="page-transparency">
+    <div class="trans-hero">
+      <div class="trans-hero-label">Verified Care, Transparent Science</div>
+      <div class="trans-hero-title">Full transparency report</div>
+      <div class="trans-hero-sub">Every rupee disclosed · Zero pharma sponsorship · Independent audit</div>
+    </div>
+    <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;color:var(--text-muted)">Last updated: April 19, 2026</div>
+      <div class="live-badge"><div class="live-dot"></div>Live disclosure</div>
+    </div>
+    <div class="pledge-card">
+      <div class="pledge-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#085041" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>The No Pharma Pledge</div>
+      <div class="pledge-body">Healix will never accept pharmaceutical company investment, advertising, or content partnerships. Our only commercial relationship is with our users through our subscription plans. No drug company has ever paid to appear on this platform. No drug company ever will.</div>
+      <div class="pledge-signed">Signed by founders — Notarised April 2026 · Registration no. HLX/2026/NPP/001<br>Legally binding. Publicly filed with the Registrar of Companies, Bengaluru.</div>
+    </div>
+    <div class="section-title" style="padding:0 16px;margin-bottom:8px">Complete funding disclosure</div>
+    <div class="funding-table">
+      <div class="funding-header">Revenue sources — FY 2025–26</div>
+      <div class="funding-row"><span class="funding-source">User subscriptions (Free/Standard/Family)</span><span><span class="funding-type ft-member">Member revenue</span></span><span class="funding-amount">₹14.2L</span></div>
+      <div class="funding-row"><span class="funding-source">Seed grant — IIT-B incubator</span><span><span class="funding-type ft-grant">Grant</span></span><span class="funding-amount">₹25L</span></div>
+      <div class="funding-row"><span class="funding-source">Angel round — individual investors</span><span><span class="funding-type ft-grant">Equity</span></span><span class="funding-amount">₹50L</span></div>
+      <div class="funding-row" style="background:var(--red-50)"><span class="funding-source" style="color:var(--red-800)">Pharmaceutical companies</span><span><span class="funding-type ft-pharma-no">Zero — none</span></span><span class="funding-amount" style="color:var(--red-600)">₹0</span></div>
+      <div class="funding-row" style="background:var(--red-50)"><span class="funding-source" style="color:var(--red-800)">Drug advertising</span><span><span class="funding-type ft-pharma-no">Zero — none</span></span><span class="funding-amount" style="color:var(--red-600)">₹0</span></div>
+    </div>
+    <div class="section-title" style="padding:0 16px;margin-bottom:8px">Myth vs fact — addressing the claims</div>
+    <div class="myth-section">
+      <div class="myth-card"><div class="myth-claim"><div class="myth-claim-label">Claim circulating online</div><div class="myth-claim-text">"Healix is funded by pharmaceutical companies and promotes their drugs."</div></div><div class="myth-fact"><div class="myth-fact-label">The fact</div><div class="myth-fact-text">Healix has zero pharmaceutical funding. Our complete investor list is disclosed above. Revenue is 100% from user subscriptions. Pharmaceutical advertising is contractually prohibited in our investor agreement.</div></div></div>
+      <div class="myth-card"><div class="myth-claim"><div class="myth-claim-label">Claim circulating online</div><div class="myth-claim-text">"Verified doctors on Healix are paid to recommend specific medicines."</div></div><div class="myth-fact"><div class="myth-fact-label">The fact</div><div class="myth-fact-text">Doctors on Healix are paid per consultation only — a flat fee with zero prescription bonuses. Every doctor must declare conflict of interest disclosures on their public profile.</div></div></div>
+      <div class="myth-card"><div class="myth-claim"><div class="myth-claim-label">Claim circulating online</div><div class="myth-claim-text">"The trust badges are purchased — you can pay to get a gold badge."</div></div><div class="myth-fact"><div class="myth-fact-label">The fact</div><div class="myth-fact-text">Trust badges are computed algorithmically from NMC verification status and independently reviewed claim accuracy. The scoring algorithm is open-source on GitHub. No badge has ever been purchased.</div></div></div>
+    </div>
+    <div class="section-title" style="padding:0 16px;margin-bottom:8px">Independent medical advisory board</div>
+    <div style="padding:0 16px;font-size:12px;color:var(--text-muted);margin-bottom:10px">These doctors have no financial relationship with Healix. They independently reviewed all contracts and funding records.</div>
+    <div style="padding:0 16px">
+      <div class="advisor-card"><div class="advisor-avatar">PK</div><div><div class="advisor-name">Dr. Pradeep Kulkarni <span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div><div class="advisor-role">Senior Cardiologist, AIIMS Delhi · 22 yrs</div><div class="advisor-note">"I reviewed all commercial contracts. There is no pharmaceutical relationship of any kind."</div></div></div>
+      <div class="advisor-card"><div class="advisor-avatar">SR</div><div><div class="advisor-name">Dr. Sunita Rao <span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div><div class="advisor-role">Public Health Expert, WHO Consultant · 18 yrs</div><div class="advisor-note">"The trust score methodology is sound and independent. I verified the algorithm personally."</div></div></div>
+      <div class="advisor-card"><div class="advisor-avatar">AM</div><div><div class="advisor-name">Dr. Arjun Mehta <span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div><div class="advisor-role">Medical Ethics, CMC Vellore · 15 yrs</div><div class="advisor-note">"Content moderation follows WHO guidelines. No commercial influence was found in content decisions."</div></div></div>
+    </div>
+    <div class="section-title" style="padding:0 16px;margin-bottom:8px;margin-top:14px">Third-party audit results</div>
+    <div class="info-card">
+      <div class="info-card-title">Independent audit — April 2026</div>
+      <div class="info-card-body" style="margin-bottom:10px">Conducted by MedEthics India (independent, no pharma clients). Full report at healix.in/audit-2026.pdf</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+        <div class="audit-row"><span class="audit-label">Pharmaceutical sponsorship</span><span class="audit-status">None found</span></div>
+        <div class="audit-row"><span class="audit-label">Doctor payment transparency</span><span class="audit-status">Fully compliant</span></div>
+        <div class="audit-row"><span class="audit-label">Content neutrality</span><span class="audit-status">Compliant</span></div>
+        <div class="audit-row"><span class="audit-label">NMC verification process</span><span class="audit-status">Verified correct</span></div>
+        <div class="audit-row"><span class="audit-label">Conflict of interest disclosures</span><span class="audit-status">All published</span></div>
+        <div class="audit-row"><span class="audit-label">Next scheduled audit</span><span class="audit-val">October 2026</span></div>
+      </div>
+    </div>
+    <div style="padding:0 16px 16px;margin-top:6px">
+      <button class="cta-btn" style="background:var(--teal-600)" onclick="showToast('Full audit report downloaded')">Download full audit report (PDF)</button>
+      <button class="cta-btn" style="background:transparent;color:var(--blue-600);border:1px solid var(--blue-200);margin-top:8px" onclick="showPage('experts')">Meet our verified doctors →</button>
+    </div>
+  </div>
+
+  <!-- MEET EXPERTS PAGE -->
+  <div class="page" id="page-experts">
+    <div class="expert-hero">
+      <div style="font-size:11px;letter-spacing:.08em;opacity:.7;text-transform:uppercase;margin-bottom:4px">Verified care</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:4px">Meet our experts</div>
+      <div style="font-size:13px;opacity:.8">Every doctor NMC-verified · COI disclosed · Independently reviewed</div>
+    </div>
+    <div style="padding:12px 16px;font-size:12px;color:var(--text-muted);line-height:1.5;border-bottom:1px solid var(--border)">These are real doctors with real NMC registrations. Each has disclosed any potential conflicts of interest on their public profile. No doctor has ever paid to appear here.</div>
+    <div style="padding:10px 16px 0" id="expertList"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="showPage('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home<div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" id="nav-reels" onclick="showPage('reels')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Reels
+    </button>
+    <button class="nav-sos" onclick="showPage('emergency')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </button>
+    <button class="nav-item" id="nav-chat" onclick="showPage('chat')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat
+    </button>
+    <button class="nav-item" id="nav-dashboard" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+    </button>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="callModal" onclick="closeModal('callModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><button class="modal-close" onclick="closeModal('callModal')">×</button>Call doctor</div>
+    <div style="text-align:center;padding:20px 0">
+      <div class="doc-avatar" style="width:64px;height:64px;margin:0 auto 10px;font-size:18px" id="callDocAvatar">DR</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text)" id="callDocName">Dr. Rajesh Sharma</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">NMC Verified · Conflict of interest: None declared</div>
+      <div style="font-size:13px;color:#16a34a;margin-top:8px">Available now</div>
+    </div>
+    <button class="modal-btn" onclick="closeModal('callModal');showToast('Connecting call…')">Call now</button>
+    <button class="modal-btn secondary" onclick="closeModal('callModal');startChat()">Message instead</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="firstAidModal" onclick="closeModal('firstAidModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><button class="modal-close" onclick="closeModal('firstAidModal')">×</button>First aid guide</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:var(--red-50);border:1px solid var(--red-400);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--red-600);margin-bottom:4px">Chest pain</div><div style="font-size:11px;color:var(--red-800);line-height:1.5">Make the person sit or lie down. Loosen tight clothing. Do NOT give food/water. Call 108 immediately. If trained, start CPR if unresponsive.</div></div>
+      <div style="background:var(--amber-50);border:1px solid var(--amber-400);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--amber-600);margin-bottom:4px">Heavy bleeding</div><div style="font-size:11px;color:var(--amber-800);line-height:1.5">Apply firm pressure with clean cloth. Elevate the injured area above the heart. Do not remove the cloth. Tie a tourniquet only as last resort.</div></div>
+      <div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--blue-800);margin-bottom:4px">High fever</div><div style="font-size:11px;color:var(--blue-600);line-height:1.5">Give paracetamol if available. Apply cool wet cloth to forehead. Ensure hydration. Seek doctor if temperature exceeds 103°F or if child under 3 months.</div></div>
+      <div style="background:var(--teal-50);border:1px solid var(--teal-400);border-radius:var(--radius-sm);padding:10px 12px"><div style="font-size:12px;font-weight:600;color:var(--teal-600);margin-bottom:4px">Snake bite</div><div style="font-size:11px;color:var(--teal-800);line-height:1.5">Keep the person calm and still. Immobilise the bitten limb at or below heart level. Do NOT cut, suck, or apply a tourniquet. Rush to hospital immediately.</div></div>
+    </div>
+    <button class="modal-btn" onclick="closeModal('firstAidModal')">Close guide</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="langModal" onclick="closeModal('langModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><button class="modal-close" onclick="closeModal('langModal')">×</button>Choose language</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="lang-pill active" onclick="selectLangModal(this,'EN')">English</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'हि')">हिंदी</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'తె')">తెలుగు</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'த')">தமிழ்</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'म')">मराठी</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'ಕ')">ಕನ್ನಡ</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'ব')">বাংলা</div>
+      <div class="lang-pill" onclick="selectLangModal(this,'ગ')">ગુજરાતી</div>
+    </div>
+    <button class="modal-btn" onclick="closeModal('langModal')">Done</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DOCTORS=[
+  {id:1,name:'Dr. Rajesh Sharma',initials:'RS',spec:'Cardiologist',exp:'14 yrs',trust:'gold',score:94,online:true,dist:'1.2 km',coi:'None declared',quote:"I joined Healix because I want patients who can't afford hospital visits to get real medical guidance — not influencer advice."},
+  {id:2,name:'Dr. Priya Mehta',initials:'PM',spec:'General Physician',exp:'8 yrs',trust:'silver',score:88,online:true,dist:'2.1 km',coi:'None declared',quote:"The NMC verification on Healix is the same rigour as any medical institution. My reputation is everything — I wouldn't be here if it wasn't right."},
+  {id:3,name:'Dr. Sneha Rao',initials:'SR',spec:'Paediatrician',exp:'11 yrs',trust:'gold',score:91,online:false,dist:'3.4 km',coi:'None declared',quote:"Parents in rural areas need access to a paediatrician. Healix gives me that reach without compromising my standards."},
+  {id:4,name:'Dr. Arun Verma',initials:'AV',spec:'Dermatologist',exp:'6 yrs',trust:'silver',score:82,online:true,dist:'4.0 km',coi:'None declared',quote:"I disclose all my affiliations on my profile. Transparency is not optional in medicine."},
+  {id:5,name:'Dr. Meena Pillai',initials:'MP',spec:'Gynaecologist',exp:'15 yrs',trust:'gold',score:96,online:true,dist:'2.8 km',coi:'None declared',quote:"Women's health is under-served by social media. I'm here to fix that."},
+  {id:6,name:'Dr. Vijay Kumar',initials:'VK',spec:'Orthopaedic',exp:'10 yrs',trust:'silver',score:85,online:false,dist:'5.1 km',coi:'None declared',quote:"No platform has ever asked me to disclose my COI before. Healix did. That's why I trust it."},
+];
+const REELS=[
+  {id:1,title:'Why you should NOT self-medicate fever',doc:'Dr. Priya Mehta',views:'2.4L',likes:'18K',bg:'#DBEAFE',accent:'#185FA5',duration:'4:12',tag:'verified_md',category:'Fever'},
+  {id:2,title:'Understanding your blood pressure readings',doc:'Dr. Rajesh Sharma',views:'1.1L',likes:'9.2K',bg:'#D1FAE5',accent:'#065F46',duration:'6:45',tag:'gold',category:'Heart'},
+  {id:3,title:'Diabetes myths debunked by a doctor',doc:'Dr. Sneha Rao',views:'89K',likes:'7.1K',bg:'#FEF3C7',accent:'#92400E',duration:'5:30',tag:'silver',category:'Diabetes'},
+  {id:4,title:'5 signs you need to see a doctor today',doc:'Dr. Arun Verma',views:'3.2L',likes:'22K',bg:'#FCE7F3',accent:'#9D174D',duration:'3:55',tag:'verified_md',category:'General'},
+  {id:5,title:'How to read your lab report yourself',doc:'Dr. Meena Pillai',views:'1.8L',likes:'14K',bg:'#E0E7FF',accent:'#3730A3',duration:'7:20',tag:'gold',category:'Lab'},
+  {id:6,title:'Mental health: when to seek help',doc:'Dr. Vijay Kumar',views:'2.1L',likes:'19K',bg:'#F0FDF4',accent:'#166534',duration:'8:00',tag:'silver',category:'Mental Health'},
+];
+const NOTIFICATIONS=[
+  {id:1,icon:'crisis',title:'Important message from Healix',body:'We have published a full financial disclosure in response to recent claims. Read our transparency report.',time:'Just now',unread:true},
+  {id:2,icon:'appointment',title:'Appointment confirmed',body:'Dr. Rajesh Sharma — Apr 22 at 11:00 AM',time:'2 hours ago',unread:true},
+  {id:3,icon:'lab',title:'Lab report analysis ready',body:'Your ECG report has been reviewed by AI. 1 value flagged.',time:'Yesterday',unread:false},
+  {id:4,icon:'trust',title:'New verified doctor nearby',body:'Dr. Meena Pillai (Gynaecologist) joined Healix near you.',time:'Yesterday',unread:false},
+  {id:5,icon:'reminder',title:'Medication reminder',body:"Don't forget your BP medication today.",time:'2 days ago',unread:false},
+];
+const CHAT_HISTORY=[
+  {role:'them',text:'Hello! How can I help you today?',time:'10:32 AM'},
+  {role:'me',text:'Doctor, I have chest tightness since yesterday and mild breathlessness.',time:'10:33 AM'},
+  {role:'insight',text:'Dr. Sharma knows your history from March. AI would give a generic answer without this context.'},
+  {role:'them',text:"I see your history — you had a similar episode in March. Are you still on your BP medication? Given your past, I'd advise an ECG today.",time:'10:34 AM'},
+  {role:'me',text:"Yes, but I missed 2 days. Will go for an ECG today.",time:'10:35 AM'},
+  {role:'them',text:"Good. Book a slot with me after the ECG and I'll review the report. Don't skip your medication again.",time:'10:35 AM'},
+];
+
+let freeTextsLeft=3,chatDoctor=DOCTORS[0];
+const BANNER_COLORS=['#185FA5','#0F6E56','#854F0B','#A32D2D','#3730A3','#166534'];
+
+function setGreeting(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('greetingBar').textContent=g+', Pramath';
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const page=document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  const nav=document.getElementById('nav-'+id);
+  if(nav) nav.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function switchDashTab(tab){
+  const profileTab=document.getElementById('dash-profile-tab');
+  const plansTab=document.getElementById('dash-plans-tab');
+  const btnProfile=document.getElementById('tab-profile');
+  const btnPlans=document.getElementById('tab-plans');
+  if(tab==='profile'){
+    profileTab.style.display='block';plansTab.style.display='none';
+    btnProfile.style.color='var(--blue-600)';btnProfile.style.borderBottom='2px solid var(--blue-600)';
+    btnPlans.style.color='var(--text-muted)';btnPlans.style.borderBottom='none';
+  } else {
+    profileTab.style.display='none';plansTab.style.display='block';
+    btnPlans.style.color='var(--blue-600)';btnPlans.style.borderBottom='2px solid var(--blue-600)';
+    btnProfile.style.color='var(--text-muted)';btnProfile.style.borderBottom='none';
+  }
+}
+
+function showPricingTab(){
+  showPage('dashboard');
+  setTimeout(()=>switchDashTab('plans'),50);
+}
+
+function setBilling(mode){
+  const isAnnual=mode==='annual';
+  document.getElementById('billingMonthly').classList.toggle('active',!isAnnual);
+  document.getElementById('billingAnnual').classList.toggle('active',isAnnual);
+  document.getElementById('saveBadge').style.display=isAnnual?'inline-block':'none';
+  // Standard
+  document.getElementById('standardPrice').textContent=isAnnual?'₹39':'₹49';
+  document.getElementById('standardPer').textContent='/month';
+  document.getElementById('standardAnnualNote').style.display=isAnnual?'block':'none';
+  // Family
+  document.getElementById('familyPrice').textContent=isAnnual?'₹71':'₹89';
+  document.getElementById('familyPer').textContent='/month';
+  document.getElementById('familyAnnualNote').style.display=isAnnual?'block':'none';
+}
+
+function renderDoctorCard(doc){
+  const trustLabel=doc.trust==='gold'?'Gold · '+doc.score+'% accuracy':'Silver · '+doc.score+'% accuracy';
+  const trustClass=doc.trust==='gold'?'trust-gold':'trust-silver';
+  return `<div class="doctor-card" onclick="openDoctorChat(${doc.id})">
+    <div class="doc-avatar">${doc.initials}</div>
+    <div class="doc-info">
+      <div class="doc-name">${doc.name}<span class="verified-badge"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div>
+      <div class="doc-spec">${doc.spec} · ${doc.exp} · ${doc.dist}</div>
+      <div class="doc-tags">
+        <span class="trust-pill ${trustClass}">${trustLabel}</span>
+        <span class="trust-pill trust-verified">NMC Verified</span>
+      </div>
+      <div class="coi-tag">COI: ${doc.coi}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+      <div class="online-dot" style="background:${doc.online?'#22c55e':'#d1d5db'}"></div>
+      <div class="online-label" style="color:${doc.online?'#16a34a':'#9ca3af'}">${doc.online?'Online':'Offline'}</div>
+    </div>
+  </div>`;
+}
+
+function renderReelCard(reel){
+  const tagLabel=reel.tag==='verified_md'?'Verified MD':reel.tag==='gold'?'Gold accuracy':'Silver accuracy';
+  const tagClass=reel.tag==='verified_md'?'trust-verified':reel.tag==='gold'?'trust-gold':'trust-silver';
+  return `<div class="reel-card">
+    <div class="reel-thumb" style="background:${reel.bg}">
+      <div class="play-circle" onclick="showToast('Playing: ${reel.title}')"><div class="play-tri" style="border-left-color:${reel.accent}"></div></div>
+      <div class="reel-duration">${reel.duration}</div>
+    </div>
+    <div class="reel-body">
+      <div class="reel-title">${reel.title}</div>
+      <div class="reel-meta">${reel.doc}</div>
+      <div class="reel-tags"><span class="trust-pill ${tagClass}">${tagLabel}</span></div>
+      <div class="reel-stats">
+        <div class="reel-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${reel.views} views</div>
+        <div class="reel-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>${reel.likes}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderNotifications(){
+  const icons={
+    crisis:{bg:'#FCEBEB',stroke:'#A32D2D'},appointment:{bg:'#E6F1FB',stroke:'#185FA5'},
+    lab:{bg:'#FAEEDA',stroke:'#854F0B'},trust:{bg:'#E1F5EE',stroke:'#0F6E56'},
+    reminder:{bg:'#FBEAF0',stroke:'#993556'},tip:{bg:'#EAF3DE',stroke:'#3B6D11'},
+  };
+  return NOTIFICATIONS.map(n=>{
+    const ic=icons[n.icon]||icons.tip;
+    return `<div class="notif-item ${n.unread?'unread':''}" onclick="handleNotifClick(${n.id})">
+      <div class="notif-icon" style="background:${ic.bg}"><svg viewBox="0 0 24 24" fill="none" stroke="${ic.stroke}" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div style="flex:1"><div class="notif-title">${n.title}</div><div class="notif-body">${n.body}</div><div class="notif-time">${n.time}</div></div>
+      ${n.unread?'<div class="unread-dot"></div>':''}
+    </div>`;
+  }).join('');
+}
+
+function renderExpertCards(){
+  return DOCTORS.map((doc,i)=>`
+    <div class="expert-card" style="margin-bottom:14px">
+      <div class="expert-banner" style="background:${BANNER_COLORS[i%BANNER_COLORS.length]}">${doc.initials}</div>
+      <div class="expert-body">
+        <div class="expert-name">${doc.name}<span class="verified-badge" style="width:16px;height:16px;margin-left:4px"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div>
+        <div class="expert-spec">${doc.spec} · ${doc.exp} experience</div>
+        <div class="expert-stats">
+          <div class="expert-stat"><div class="expert-stat-num">${doc.score}%</div><div class="expert-stat-label">Accuracy</div></div>
+          <div class="expert-stat"><div class="expert-stat-num">NMC</div><div class="expert-stat-label">Verified</div></div>
+          <div class="expert-stat"><div class="expert-stat-num">${doc.dist}</div><div class="expert-stat-label">From you</div></div>
+        </div>
+        <div class="expert-coi"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>Conflict of interest: ${doc.coi}</div>
+        <div class="expert-quote">"${doc.quote}"</div>
+        <button onclick="openDoctorChat(${doc.id})" style="width:100%;margin-top:12px;padding:10px;border-radius:var(--radius-md);background:var(--blue-600);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer">Chat with ${doc.name.split(' ')[1]} →</button>
+      </div>
+    </div>`).join('');
+}
+
+function initPages(){
+  document.getElementById('homeDoctorList').innerHTML=DOCTORS.slice(0,2).map(d=>renderDoctorCard(d)).join('');
+  document.getElementById('homeReelPreview').innerHTML=renderReelCard(REELS[0]);
+  document.getElementById('doctorList').innerHTML=DOCTORS.map(d=>renderDoctorCard(d)).join('');
+  const cats=['All',...new Set(REELS.map(r=>r.category))];
+  document.getElementById('reelFilters').innerHTML=cats.map((c,i)=>`<div class="lang-pill ${i===0?'active':''}" onclick="filterReels('${c}',this)">${c}</div>`).join('');
+  document.getElementById('reelList').innerHTML=REELS.map(r=>renderReelCard(r)).join('');
+  const specs=['All',...new Set(DOCTORS.map(d=>d.spec))];
+  document.getElementById('specFilters').innerHTML=specs.map((s,i)=>`<div class="lang-pill ${i===0?'active':''}" onclick="filterDoctors('${s}',this)">${s}</div>`).join('');
+  document.getElementById('notifList').innerHTML=renderNotifications();
+  document.getElementById('chatDoctorList').innerHTML=DOCTORS.map(d=>`
+    <div class="doc-list-item" onclick="openDoctorChat(${d.id})">
+      <div class="doc-avatar">${d.initials}</div>
+      <div style="flex:1"><div class="doc-name" style="font-size:13px">${d.name}<span class="verified-badge" style="margin-left:4px"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span></div><div class="doc-spec" style="font-size:11px">${d.spec}</div></div>
+      <div style="font-size:11px;color:${d.online?'#16a34a':'var(--text-muted)'}">${d.online?'Online':'Offline'}</div>
+    </div>`).join('');
+  document.getElementById('expertList').innerHTML=renderExpertCards();
+  document.getElementById('crisisNotice').classList.add('visible');
+  setNotifDot();
+}
+
+function handleSearch(val){
+  const results=document.getElementById('searchResults');
+  if(!val.trim()){results.style.display='none';return;}
+  const v=val.toLowerCase();
+  const matchDocs=DOCTORS.filter(d=>d.name.toLowerCase().includes(v)||d.spec.toLowerCase().includes(v));
+  const matchReels=REELS.filter(r=>r.title.toLowerCase().includes(v));
+  let html='';
+  if(matchDocs.length){html+='<div style="font-size:11px;font-weight:600;color:var(--blue-600);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Doctors</div>';html+=matchDocs.map(d=>renderDoctorCard(d)).join('');}
+  if(matchReels.length){html+='<div style="font-size:11px;font-weight:600;color:var(--blue-600);margin:12px 0 8px">Health reels</div>';html+=matchReels.map(r=>renderReelCard(r)).join('');}
+  if(!html) html='<div class="empty-state"><p>No results for "'+val+'"</p></div>';
+  results.innerHTML=html;results.style.display='block';
+}
+
+function filterReels(cat,el){
+  document.querySelectorAll('#reelFilters .lang-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const filtered=cat==='All'?REELS:REELS.filter(r=>r.category===cat);
+  document.getElementById('reelList').innerHTML=filtered.map(r=>renderReelCard(r)).join('');
+}
+function filterDoctors(spec,el){
+  document.querySelectorAll('#specFilters .lang-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const filtered=spec==='All'?DOCTORS:DOCTORS.filter(d=>d.spec===spec);
+  document.getElementById('doctorList').innerHTML=filtered.map(d=>renderDoctorCard(d)).join('');
+}
+
+function openDoctorChat(docId){
+  chatDoctor=DOCTORS.find(d=>d.id===docId)||DOCTORS[0];
+  document.getElementById('chatDocAvatar').textContent=chatDoctor.initials;
+  document.getElementById('chatDocName').innerHTML=chatDoctor.name+`<span class="verified-badge" style="margin-left:4px"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2,5 4,7 8,3"/></svg></span>`;
+  document.getElementById('freeCounter').textContent=freeTextsLeft+' free text'+(freeTextsLeft!==1?'s':'')+' left';
+  document.getElementById('chatListView').style.display='none';
+  document.getElementById('chatConversationView').style.display='flex';
+  renderChatHistory();
+  showPage('chat');
+}
+function backToList(){
+  document.getElementById('chatListView').style.display='block';
+  document.getElementById('chatConversationView').style.display='none';
+}
+function renderChatHistory(){
+  const msgs=document.getElementById('chatMessages');
+  msgs.innerHTML=CHAT_HISTORY.map(m=>{
+    if(m.role==='insight') return `<div class="insight-banner"><div class="insight-title">Why this matters</div><div class="insight-text">${m.text}</div></div>`;
+    return `<div class="bubble-wrap ${m.role}"><div class="bubble ${m.role}">${m.text}</div><div class="bubble-time">${m.time}</div></div>`;
+  }).join('');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function sendChatMessage(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text) return;
+  if(freeTextsLeft<=0){showToast('Upgrade to Standard for unlimited Q&As');return;}
+  freeTextsLeft--;
+  document.getElementById('freeCounter').textContent=freeTextsLeft+' free text'+(freeTextsLeft!==1?'s':'')+' left';
+  document.getElementById('statTexts').textContent=(3-freeTextsLeft);
+  CHAT_HISTORY.push({role:'me',text,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+  input.value='';
+  renderChatHistory();
+  setTimeout(()=>{
+    const replies=["Thank you for sharing. Can you tell me more about when the symptoms started?","Based on your history, I'd suggest a follow-up. Have you taken your medication today?","That sounds manageable. Stay hydrated and rest. Monitor for 24 hours.","Please book an appointment so I can examine you properly."];
+    CHAT_HISTORY.push({role:'them',text:replies[Math.floor(Math.random()*replies.length)],time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+    renderChatHistory();
+  },1200);
+}
+function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}}
+function startChat(){openDoctorChat(1);}
+
+function analyzeReport(){
+  showToast('Analysing report…');
+  setTimeout(()=>{
+    document.getElementById('labResult').classList.add('show');
+    document.getElementById('labAiSummary').classList.add('show');
+    document.getElementById('labCta').style.display='block';
+    showToast('Analysis complete!');
+  },1800);
+}
+
+function openCallModal(name){
+  document.getElementById('callDocName').textContent=name;
+  document.getElementById('callDocAvatar').textContent=name.split(' ').filter((_,i)=>i>0).map(w=>w[0]).join('').slice(0,2);
+  openModal('callModal');
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function selectLang(el,code,display){
+  document.querySelectorAll('#langGrid .lang-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('langDisplay').textContent=display;
+  showToast('Language set to '+el.textContent);
+}
+function selectLangModal(el,display){
+  document.querySelectorAll('#langModal .lang-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('langDisplay').textContent=display;
+  showToast('Language set to '+el.textContent);
+  closeModal('langModal');
+}
+
+function setNotifDot(){
+  const unread=NOTIFICATIONS.filter(n=>n.unread).length;
+  document.getElementById('notifDot').style.display=unread>0?'block':'none';
+}
+function handleNotifClick(id){
+  const n=NOTIFICATIONS.find(n=>n.id===id);
+  if(n){n.unread=false;}
+  if(id===1) showPage('transparency');
+  document.getElementById('notifList').innerHTML=renderNotifications();
+  setNotifDot();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+setGreeting();
+initPages();
+</script>
+</body>
+</html>
